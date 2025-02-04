@@ -8,8 +8,9 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
     logging: false
 });
 
-// Import models
 const User = require('./User')(sequelize);
+const List = require('./List')(sequelize);
+const ListItem = require('./ListItem')(sequelize);
 
 (async () => {
     try {
@@ -21,4 +22,4 @@ const User = require('./User')(sequelize);
     }
 })();
 
-module.exports = { sequelize, User };
+module.exports = { sequelize, User, List, ListItem };

@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { User } = require('./models');
+const { User, List, ListItem } = require('./models');
 
 const app = express();
 app.use(express.json());
@@ -12,6 +12,8 @@ const generateToken = (user) => {
         expiresIn: process.env.JWT_EXPIRES_IN || '1h'
     })
 }
+
+const authenticateToken = require('./middleware/auth');
 
 // User registration endpoint
 app.post('/api/user', async (req, res) => {
@@ -44,7 +46,193 @@ app.post('/api/login', async (req, res) => {
         }
         
         const token = generateToken(user);
-        res.json({ message: `${userName} is logged in!`, token });
+        res.json({ userId: user.userId, userName: user.userName, token });
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+/* -------------------------------- */
+
+app.post('/api/lists', authenticateToken, async (req, res) => {
+    const { name, description, userId } = req.body;
+
+    try {
+        const existingList = await List.findOne({ where: { name }});
+        if (existingList) {
+            return res.sendStatus(409);
+        }
+
+        const list = await List.create({ name, description, userId });
+        res.json({ message: "List created successfully!", list});
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+app.get('/api/lists', authenticateToken, async (req, res) => {
+    const { userId } = req.query;
+
+    try {
+        const lists = await List.findAll({ where: { userId }});
+        if (!lists) {
+            return res.sendStatus(404);
+        }
+
+        res.json({ lists });
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+app.get('/api/lists/:id', authenticateToken, async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const list = await List.findOne({ where: { id }});
+        if (!list) {
+            return res.sendStatus(404);
+        }
+
+        res.json({ list });
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+app.put('/api/lists/:id', authenticateToken, async (req, res) => {
+    const id = req.params.id;
+    const { name, description } = req.body;
+
+    try {
+        const list = await List.findOne({ where: { id }});
+
+        if(!list) {
+            return res.sendStatus(404);
+        }
+
+        list.name = name || list.name;
+        list.description = description || list.description;
+
+        await list.save();
+
+        res.json({ message: "List updated successfully!", list });
+
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+app.delete('/api/lists/:id', authenticateToken, async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const list = await List.findOne({ where: { id }});
+
+        if(!list) {
+            return res.sendStatus(404);
+        }
+
+        await list.destroy();
+
+        res.json({ message: "List deleted successfully!" });
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+/* -------------------------------- */
+
+app.post('/api/list-items', authenticateToken, async (req, res) => {
+    const { listId, name, description, category, cost, purchased } = req.body;
+
+    try {
+        const listItem = await ListItem.create({ listId, name, description, category, cost, purchased });
+        res.json({ message: "List item created successfully!", listItem });
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+app.get('/api/list-items', authenticateToken, async (req, res) => {
+    const { listId } = req.query;
+
+    try {
+        const listItems = await ListItem.findAll({ where: { listId }});
+        if (!listItems) {
+            return res.sendStatus(404);
+        }
+
+        res.json({ listItems });
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+app.get('/api/list-items/:id', authenticateToken, async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const listItem = await ListItem.findOne({ where: { id }});
+        if (!listItem) {
+            return res.sendStatus(404);
+        }
+
+        res.json({ listItem });
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+app.put('/api/list-items/:id', authenticateToken, async (req, res) => {
+    const id = req.params.id;
+    const { name, description, category, cost, purchased } = req.body;
+
+    try {
+        const listItem = await ListItem.findOne({ where: { id }});
+
+        if(!listItem) {
+            return res.sendStatus(404);
+        }
+
+        listItem.name = name || listItem.name;
+        listItem.description = description || listItem.description;
+        listItem.category = category || listItem.category;
+        listItem.cost = cost || listItem.cost;
+        listItem.purchased = purchased || listItem.purchased;
+
+        await listItem.save();
+
+        res.json({ message: "Item updated successfully!", listItem });
+
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+app.delete('/api/list-items/:id', authenticateToken, async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const listItem = await ListItem.findOne({ where: { id }});
+
+        if(!listItem) {
+            return res.sendStatus(404);
+        }
+
+        await listItem.destroy();
+
+        res.json({ message: "List item deleted successfully!" });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
