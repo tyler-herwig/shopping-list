@@ -1,11 +1,18 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
 require('dotenv').config();
 const { User, List, ListItem } = require('./models');
 
 const app = express();
 app.use(express.json());
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 const generateToken = (user) => {
     return jwt.sign({ userId: user.userId, userName: user.userName }, process.env.JWT_SECRET, {
@@ -51,6 +58,10 @@ app.post('/api/login', async (req, res) => {
         console.error(err);
         res.sendStatus(500);
     }
+});
+
+app.get('/api/validate-token', authenticateToken, (req, res) => {
+    res.json({ message: "Token is valid!" });
 });
 
 /* -------------------------------- */
