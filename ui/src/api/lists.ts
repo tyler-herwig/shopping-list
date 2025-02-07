@@ -7,6 +7,12 @@ export const fetchListsByUserId = async (userId: string | null): Promise<IList[]
     return response.data.lists;
 }
 
+export const fetchListById = async (id: string | undefined): Promise<IList> => {
+    const response = await axios.get<{ list: IList }>(`/lists/${id}`);
+
+    return response.data.list;
+}
+
 export const createNewList = async (list: IList) => {
     const response = await axios.post<IList>('/lists', list);
 

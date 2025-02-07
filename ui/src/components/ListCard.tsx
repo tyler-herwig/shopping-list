@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Typography, CardHeader, CardActions, Button } from '@mui/material';
+import { Card, CardContent, Typography, CardHeader, CardActions } from '@mui/material';
 
 interface ListCardProps {
     title: string;
@@ -8,7 +8,7 @@ interface ListCardProps {
 
 const ListCard: React.FC<ListCardProps> = ({ title, description }) => {
   return (
-    <Card>
+    <Card className="list-card">
       <CardHeader title={title} />
       <CardContent>
         <Typography variant="body2" color="textSecondary" component="p">
@@ -16,9 +16,7 @@ const ListCard: React.FC<ListCardProps> = ({ title, description }) => {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small" color="primary">
-          Learn More
-        </Button>
+        
       </CardActions>
     </Card>
   );
