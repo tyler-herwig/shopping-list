@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import {Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../context/UserContext';
-import ShoppingLists from '../components/Lists';
+import Lists from '../components/Lists';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const Dashboard: React.FC = () => {
         <Typography variant="h5">
             Welcome, {userName}. Here are your lists
         </Typography>
-        <ShoppingLists/>
+        <Lists/>
     </>
   );
 };

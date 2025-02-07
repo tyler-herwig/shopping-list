@@ -18,3 +18,9 @@ export const fetchListItemsByListId = async (id: string | undefined): Promise<IL
 
     return response.data.listItems;
 }
+
+export const createNewListItem = async (listItem: IListItem) => {
+    const response = await axios.post<IListItem>('/list-items', listItem);
+
+    return response.data;
+}

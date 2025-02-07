@@ -11,6 +11,6 @@ export interface IListItem {
     name: string;
     description: string;
     category: string;
-    cost: number;
-    purchased: boolean;
+    cost: number | null;
+    purchased: boolean | null;
 }

@@ -8,6 +8,7 @@ import ListDetail from './pages/ListDetail';
 import './utils/axiosConfig';
 import { CssBaseline } from '@mui/material';
 import BottomNavbar from './components/BottomNavbar';
+import { BottomNavbarProvider } from './context/BottomNavbarContext';
 
 const queryClient = new QueryClient();
 
@@ -15,16 +16,18 @@ const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <UserContextProvider>
-        <Router>
-          <CssBaseline />
-          <BottomNavbar/>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/lists/:id" element={<ListDetail/>} />
-            <Route path="/" element={<Login />} />
-          </Routes>
-        </Router>
+        <BottomNavbarProvider>
+          <Router>
+            <CssBaseline />
+            <BottomNavbar/>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard/lists/:id" element={<ListDetail/>} />
+              <Route path="/" element={<Login />} />
+            </Routes>
+          </Router>
+        </BottomNavbarProvider>
       </UserContextProvider>
     </QueryClientProvider>
   );

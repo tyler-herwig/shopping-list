@@ -1,38 +1,41 @@
 import { Button, Modal, Box, Typography, TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { IList } from '../models/lists';
+import { IListItem } from '../models/lists';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createNewList } from '../api/lists';
+import { createNewListItem } from '../api/lists';
 
-interface ListModalProps {
-    userId: string | null;
+interface ListItemModalProps {
+    listId: number | null;
     open: boolean;
     handleClose: () => void;
 }
 
-const ListModal: React.FC<ListModalProps> = ({ userId, open, handleClose }) => {
+const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose }) => {
     const queryClient = useQueryClient();
 
-    const [formData, setFormData] = useState<IList>({
+    const [formData, setFormData] = useState<IListItem>({
+        listId: listId,
         name: '',
         description: '',
-        userId: userId
+        category: '',
+        cost: null,
+        purchased: null
     });
 
     useEffect(() => {
-        if (userId) {
+        if (listId) {
             setFormData(prevState => ({
                 ...prevState,
-                userId: userId
+                listId: listId
             }));
         }
-    }, [userId])
+    }, [listId]);
 
     const {mutate, isError } = useMutation({
-        mutationFn: createNewList,
+        mutationFn: createNewListItem,
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['lists'] });
-            setFormData({ name: '', description: '', userId: userId})
+            queryClient.invalidateQueries({queryKey: ['listItem'] });
+            setFormData({ listId: listId, name: '', description: '', category: '', cost: null, purchased: null})
             handleClose();
         }
     })
@@ -58,7 +61,7 @@ const ListModal: React.FC<ListModalProps> = ({ userId, open, handleClose }) => {
         >
             <Box sx={style}>
                 <Typography id="modal-modal-title" variant="h6" component="h2">
-                    Add New List
+                    Add New List Item
                 </Typography>
                 <form onSubmit={handleSubmit}>
                     <TextField
@@ -83,6 +86,36 @@ const ListModal: React.FC<ListModalProps> = ({ userId, open, handleClose }) => {
                         rows={4}
                         required
                     />
+                    <TextField
+                        fullWidth
+                        label="Category"
+                        name="category"
+                        value={formData.category}
+                        onChange={handleChange}
+                        margin="normal"
+                        variant="outlined"
+                        required
+                    />
+                    <TextField
+                        fullWidth
+                        label="Cost"
+                        name="cost"
+                        value={formData.cost}
+                        onChange={handleChange}
+                        margin="normal"
+                        variant="outlined"
+                        required
+                    />
+                    <TextField
+                        fullWidth
+                        label="Purchased"
+                        name="purchased"
+                        value={formData.purchased}
+                        onChange={handleChange}
+                        margin="normal"
+                        variant="outlined"
+                        required
+                    />
                     <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
                         Submit
                     </Button>
@@ -105,4 +138,4 @@ const style = {
     p: 4,
   };
 
-export default ListModal;
+export default ListItemModal;
