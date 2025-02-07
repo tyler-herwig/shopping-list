@@ -7,7 +7,7 @@ import { Avatar, CircularProgress, Container, Typography, Card, CardHeader, Card
 import { useBottomNavbar } from "../context/BottomNavbarContext";
 import ListItemModal from "../components/ListItemModal";
 
-function ListDetail() {
+const ListDetail: React.FC = () => {
     const { id } = useParams();
     const listId = id ? parseInt(id) : null;
     const { openListItemModal, handleCloseModal } = useBottomNavbar();
