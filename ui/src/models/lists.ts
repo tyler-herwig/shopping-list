@@ -3,7 +3,7 @@ export interface IList {
     name: string;
     description: string;
     userId?: string | null;
-    listItemCount: number;
+    listItemCount?: number;
 }
 
 export interface IListItem {
@@ -13,5 +13,5 @@ export interface IListItem {
     description: string;
     category: string;
     cost: number | null;
-    purchased: boolean | null;
+    purchased?: boolean | null;
 }

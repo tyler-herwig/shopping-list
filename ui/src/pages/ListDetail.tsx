@@ -6,6 +6,7 @@ import { fetchListById, fetchListItemsByListId } from "../api/lists";
 import { Avatar, CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box } from "@mui/material";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
 import ListItemModal from "../components/ListItemModal";
+import { styled } from "@mui/system";
 
 const ListDetail: React.FC = () => {
     const { id } = useParams();
@@ -35,12 +36,11 @@ const ListDetail: React.FC = () => {
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>
             <Card sx={{ boxShadow: 3, borderRadius: 3 }}>
-                <CardHeader
+                <StyledCardHeader
                     title={list?.name}
                     subheader={list?.description}
-                    sx={{ backgroundColor: "#f5f5f5", textAlign: "center" }}
-                    titleTypographyProps={{ variant: 'h4' }}
-                    subheaderTypographyProps={{ variant: 'h6', color: 'textSecondary' }}
+                    titleTypographyProps={{ variant: 'h6', fontWeight: "bold" }}
+                    subheaderTypographyProps={{ variant: 'body2', color: "rgba(255, 255, 255, 0.7)" }}
                 />
                 <CardContent>
                     {listItems?.length === 0 ? (
@@ -50,9 +50,12 @@ const ListDetail: React.FC = () => {
                     ) : (
                         <List>
                             {listItems?.map((listItem) => (
-                                <ListItem key={listItem.id} sx={{ borderBottom: "1px solid #ddd" }}>
+                                <ListItem 
+                                    key={listItem.id} 
+                                    sx={{ borderBottom: "1px solid #ddd", "&:last-child": { borderBottom: "none" } }}
+                                >                            
                                     <ListItemAvatar>
-                                        <Avatar sx={{ bgcolor: "#2196f3" }}>
+                                        <Avatar sx={{ background: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)" }}>
                                             {listItem.name.charAt(0).toUpperCase()}
                                         </Avatar>
                                     </ListItemAvatar>
@@ -73,5 +76,26 @@ const ListDetail: React.FC = () => {
         </Container>
     );
 }
+
+const StyledCardHeader = styled(CardHeader)({
+    height: "150px",
+    position: "relative",
+    color: "white",
+    borderRadius: "16px 16px 0 0",
+    background: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)",
+    alignItems: "center",
+    textAlign: "center",
+    padding: "16px",
+    "::before": {
+      content: '""',
+      position: "absolute",
+      width: "270px",
+      height: "270px",
+      background: "rgba(255, 255, 255, 0.1)",
+      top: "-140px",
+      right: "-90px",
+      borderRadius: "50%",
+    },
+  });
 
 export default ListDetail;

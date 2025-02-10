@@ -1,8 +1,17 @@
-import { Button, Modal, Box, Typography, TextField } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { IList } from '../models/lists';
+import React from 'react';
+import {
+    Button,
+    Typography,
+    TextField,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions
+} from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createNewList } from '../api/lists';
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
 
 interface ListModalProps {
     userId: string | null;
@@ -13,96 +22,75 @@ interface ListModalProps {
 const ListModal: React.FC<ListModalProps> = ({ userId, open, handleClose }) => {
     const queryClient = useQueryClient();
 
-    const [formData, setFormData] = useState<IList>({
-        name: '',
-        description: '',
-        userId: userId
-    });
-
-    useEffect(() => {
-        if (userId) {
-            setFormData(prevState => ({
-                ...prevState,
-                userId: userId
-            }));
-        }
-    }, [userId])
-
-    const {mutate, isError } = useMutation({
+    const { mutate, isError } = useMutation({
         mutationFn: createNewList,
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['lists'] });
-            setFormData({ name: '', description: '', userId: userId})
+            queryClient.invalidateQueries({ queryKey: ['lists'] });
             handleClose();
         }
-    })
+    });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        mutate(formData);
-    };
+    const validationSchema = Yup.object({
+        name: Yup.string().required('Name is required')
+    });
 
     return (
-        <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-        >
-            <Box sx={style}>
-                <Typography id="modal-modal-title" variant="h6" component="h2">
-                    Add New List
-                </Typography>
-                <form onSubmit={handleSubmit}>
-                    <TextField
-                        fullWidth
-                        label="Name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        margin="normal"
-                        variant="outlined"
-                        required
-                    />
-                    <TextField
-                        fullWidth
-                        label="Description"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        margin="normal"
-                        variant="outlined"
-                        multiline
-                        rows={4}
-                        required
-                    />
-                    <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-                        Submit
-                    </Button>
-                    {isError && <Typography color="error">Error submitting data!</Typography>}
-                </form>
-            </Box>
-        </Modal>
-    )
-}
-
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-  };
+        <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>Add New List</DialogTitle>
+            <DialogContent>
+                <Formik
+                    initialValues={{
+                        name: '',
+                        description: '',
+                        userId: userId || ''
+                    }}
+                    validationSchema={validationSchema}
+                    onSubmit={(values, { resetForm }) => {
+                        mutate(values);
+                        resetForm();
+                    }}
+                >
+                    {({ errors, touched, handleChange, handleBlur }) => (
+                        <Form>
+                            <Field
+                                as={TextField}
+                                fullWidth
+                                label="Name"
+                                name="name"
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                margin="normal"
+                                variant="outlined"
+                                error={touched.name && Boolean(errors.name)}
+                                helperText={touched.name && errors.name}
+                            />
+                            <Field
+                                as={TextField}
+                                fullWidth
+                                label="Description"
+                                name="description"
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                margin="normal"
+                                variant="outlined"
+                                multiline
+                                rows={4}
+                                error={touched.description && Boolean(errors.description)}
+                                helperText={touched.description && errors.description}
+                            />
+                            {isError && <Typography color="error">Error adding list!</Typography>}
+                            <DialogActions>
+                                <Button onClick={handleClose}>Cancel</Button>
+                                <Button type="submit" color="primary">
+                                    Add List
+                                </Button>
+                            </DialogActions>
+                        </Form>
+                    )}
+                </Formik>
+            </DialogContent>
+        </Dialog>
+    );
+};
 
 export default ListModal;
