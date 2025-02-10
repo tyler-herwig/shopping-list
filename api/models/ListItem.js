@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    return sequelize.define('ListItem', {
+    const ListItem = sequelize.define('ListItem', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -35,4 +35,13 @@ module.exports = (sequelize) => {
         tableName: 'listitems',
         timestamps: false
     });
+
+    ListItem.associate = (models) => {
+        ListItem.belongsTo(models.List, {
+            foreignKey: 'listId',
+            as: 'list'
+        });
+    };
+
+    return ListItem;
 };

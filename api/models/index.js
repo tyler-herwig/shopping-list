@@ -12,6 +12,9 @@ const User = require('./User')(sequelize);
 const List = require('./List')(sequelize);
 const ListItem = require('./ListItem')(sequelize);
 
+List.associate({ ListItem });
+ListItem.associate({ List });
+
 (async () => {
     try {
         await sequelize.authenticate();

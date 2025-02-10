@@ -3,6 +3,7 @@ export interface IList {
     name: string;
     description: string;
     userId?: string | null;
+    listItemCount: number;
 }
 
 export interface IListItem {

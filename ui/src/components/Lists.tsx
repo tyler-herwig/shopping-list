@@ -4,7 +4,6 @@ import { useUserContext } from "../context/UserContext";
 import { fetchListsByUserId } from "../api/lists";
 import { IList } from "../models/lists";
 import { Container, CircularProgress, Grid, Box, Typography, Avatar } from "@mui/material";
-import { Link } from "react-router-dom"; // Fixed incorrect import
 import ListCard from "./ListCard";
 import ListModal from "./ListModal";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
@@ -58,21 +57,13 @@ const Lists: React.FC = () => {
                     {lists?.map((list) => (
                         <Grid item xs={12} sm={6} md={4} key={list.id}>
                             <Box
-                                component={Link}
-                                to={`/dashboard/lists/${list.id}`}
-                                sx={{
-                                    textDecoration: "none",
-                                    display: "block",
-                                    "&:hover .list-card": {
-                                        transform: "translateY(-5px)",
-                                        boxShadow: "0px 6px 15px rgba(0,0,0,0.1)",
-                                    },
-                                }}
+                                
                             >
                                 <ListCard
+                                    id={list.id}
                                     title={list.name}
                                     description={list.description}
-                                    count={3}
+                                    count={list.listItemCount}
                                 />
                             </Box>
                         </Grid>

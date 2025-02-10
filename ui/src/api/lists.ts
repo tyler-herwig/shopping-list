@@ -19,6 +19,12 @@ export const createNewList = async (list: IList) => {
     return response.data;
 }
 
+export const deleteList = async(id: number | undefined) => {
+    const response = await axios.delete<number>(`/lists/${id}`);
+
+    return response;
+}
+
 export const fetchListItemsByListId = async (id: string | undefined): Promise<IListItem[]> => {
     const response = await axios.get<{listItems: IListItem[] }>(`/list-items?listId=${id}`);
 

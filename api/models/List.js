@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    return sequelize.define('List', {
+    const List = sequelize.define('List', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -23,4 +23,13 @@ module.exports = (sequelize) => {
         tableName: 'lists',
         timestamps: false
     });
+    
+    List.associate = (models) => {
+        List.hasMany(models.ListItem, {
+            foreignKey: 'listId',
+            as: 'listItems'
+        });
+    };
+
+    return List;
 };

@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 require('dotenv').config();
-const { User, List, ListItem } = require('./models');
+const { sequelize, User, List, ListItem } = require('./models');
 
 const app = express();
 app.use(express.json());
@@ -87,8 +87,22 @@ app.get('/api/lists', authenticateToken, async (req, res) => {
     const { userId } = req.query;
 
     try {
-        const lists = await List.findAll({ where: { userId }});
-        if (!lists) {
+        const lists = await List.findAll({
+            where: { userId },
+            include: [{
+                model: ListItem,
+                as: 'listItems',
+                attributes: [],
+                required: false 
+            }],
+            attributes: [
+                'id', 'name', 'description', 'userId',
+                [sequelize.fn('COUNT', sequelize.col('listItems.id')), 'listItemCount']
+            ],
+            group: ['List.id'],
+        });
+
+        if (lists.length === 0) {
             return res.sendStatus(404);
         }
 
