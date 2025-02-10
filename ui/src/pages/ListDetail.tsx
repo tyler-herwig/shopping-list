@@ -1,11 +1,12 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { IList, IListItem } from "../models/lists";
+import { IList, IListItemResponse } from "../models/lists";
 import { fetchListById, fetchListItemsByListId } from "../api/lists";
-import { Avatar, CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box } from "@mui/material";
+import { CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box, Radio } from "@mui/material";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
 import ListItemModal from "../components/ListItemModal";
+import { NumericFormat } from "react-number-format";
 import { styled } from "@mui/system";
 
 const ListDetail: React.FC = () => {
@@ -19,7 +20,7 @@ const ListDetail: React.FC = () => {
         enabled: !!id
     });
 
-    const { data: listItems, isLoading: isLoadingListItems } = useQuery<IListItem[]>({
+    const { data: listItems, isLoading: isLoadingListItems } = useQuery<IListItemResponse>({
         queryKey: ['listItem', id],
         queryFn: () => fetchListItemsByListId(id),
         enabled: !!id
@@ -34,7 +35,7 @@ const ListDetail: React.FC = () => {
     }
 
     return (
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Container maxWidth="lg" sx={{ mt: 2 }}>
             <Card sx={{ boxShadow: 3, borderRadius: 3 }}>
                 <StyledCardHeader
                     title={list?.name}
@@ -43,21 +44,42 @@ const ListDetail: React.FC = () => {
                     subheaderTypographyProps={{ variant: 'body2', color: "rgba(255, 255, 255, 0.7)" }}
                 />
                 <CardContent>
-                    {listItems?.length === 0 ? (
+                    <Box>
+                        <Typography variant="h6" sx={{ display: "inline", mr: 0.7}}>
+                            Your list total is
+                        </Typography>
+                        <Typography variant="h6" sx={{ fontWeight: "bold", display: "inline" }}>
+                            <NumericFormat
+                                value={listItems?.totalCost}
+                                displayType='text'
+                                thousandSeparator={true}
+                                prefix='$'
+                                decimalScale={2}
+                                fixedDecimalScale={true}
+                            />
+                        </Typography>
+                    </Box>
+                    {listItems?.listItems.length === 0 ? (
                         <Typography variant="h6" color="textSecondary" align="center">
                             No items found.
                         </Typography>
                     ) : (
                         <List>
-                            {listItems?.map((listItem) => (
+                            {listItems?.listItems.map((listItem) => (
                                 <ListItem 
                                     key={listItem.id} 
                                     sx={{ borderBottom: "1px solid #ddd", "&:last-child": { borderBottom: "none" } }}
                                 >                            
                                     <ListItemAvatar>
-                                        <Avatar sx={{ background: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)" }}>
-                                            {listItem.name.charAt(0).toUpperCase()}
-                                        </Avatar>
+                                        <Radio 
+                                            sx={{ 
+                                                color: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)", 
+                                                "&.Mui-checked": { 
+                                                    color: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)" 
+                                                } 
+                                            }} 
+                                            value={listItem.id}
+                                        />
                                     </ListItemAvatar>
                                     <ListItemText
                                         primary={listItem.name}
@@ -96,6 +118,6 @@ const StyledCardHeader = styled(CardHeader)({
       right: "-90px",
       borderRadius: "50%",
     },
-  });
+});
 
 export default ListDetail;

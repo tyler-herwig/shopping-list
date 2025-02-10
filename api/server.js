@@ -190,12 +190,29 @@ app.get('/api/list-items', authenticateToken, async (req, res) => {
     const { listId } = req.query;
 
     try {
-        const listItems = await ListItem.findAll({ where: { listId }});
-        if (!listItems) {
+        // Fetch all list items and calculate the total cost in one query
+        const listItems = await ListItem.findAll({
+            where: { listId },
+            attributes: [
+                'id',
+                'listId',
+                'name',
+                'description',
+                'category',
+                'cost',
+                'purchased'
+            ]
+        });
+
+        if (!listItems || listItems.length === 0) {
             return res.sendStatus(404);
         }
 
-        res.json({ listItems });
+        // Calculate the total cost for all list items
+        const totalCost = await ListItem.sum('cost', { where: { listId } });
+
+        // Return the list items and the total cost
+        res.json({ listItems, totalCost });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

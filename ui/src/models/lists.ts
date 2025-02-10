@@ -6,6 +6,11 @@ export interface IList {
     listItemCount?: number;
 }
 
+export interface IListItemResponse {
+    listItems: IListItem[],
+    totalCost: number
+}
+
 export interface IListItem {
     id?: number;
     listId?: number | null;

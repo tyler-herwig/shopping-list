@@ -1,5 +1,5 @@
 import axios from '../utils/axiosConfig';
-import { IList, IListItem } from '../models/lists';
+import { IList, IListItem, IListItemResponse } from '../models/lists';
 
 export const fetchListsByUserId = async (userId: string | null): Promise<IList[]> => {
     const response = await axios.get<{lists: IList[] }>(`/lists?userId=${userId}`);
@@ -25,10 +25,10 @@ export const deleteList = async(id: number | undefined) => {
     return response;
 }
 
-export const fetchListItemsByListId = async (id: string | undefined): Promise<IListItem[]> => {
-    const response = await axios.get<{listItems: IListItem[] }>(`/list-items?listId=${id}`);
+export const fetchListItemsByListId = async (id: string | undefined): Promise<IListItemResponse> => {
+    const response = await axios.get<{listItems: IListItem[], totalCost: number }>(`/list-items?listId=${id}`);
 
-    return response.data.listItems;
+    return response.data;
 }
 
 export const createNewListItem = async (listItem: IListItem) => {
