@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { IList, IListItemResponse } from "../models/lists";
+import { IList, IListItem, IListItemResponse } from "../models/lists";
 import { fetchListById, fetchListItemsByListId } from "../api/lists";
-import { CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box, Radio } from "@mui/material";
+import { CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box, Radio, Chip, Drawer, IconButton } from "@mui/material";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
 import ListItemModal from "../components/ListItemModal";
 import { NumericFormat } from "react-number-format";
 import { styled } from "@mui/system";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 const ListDetail: React.FC = () => {
     const { id } = useParams();
@@ -25,6 +26,19 @@ const ListDetail: React.FC = () => {
         queryFn: () => fetchListItemsByListId(id),
         enabled: !!id
     });
+
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<IListItem | null>(null);
+
+    const handleListItemClick = (item: IListItem) => {
+        setSelectedItem(item);
+        setDrawerOpen(true);
+    };
+
+    const handleCloseDrawer = () => {
+        setDrawerOpen(false);
+        setSelectedItem(null);
+    };
 
     if (isLoadingList || isLoadingListItems) {
         return (
@@ -45,15 +59,15 @@ const ListDetail: React.FC = () => {
                 />
                 <CardContent>
                     <Box>
-                        <Typography variant="h6" sx={{ display: "inline", mr: 0.7}}>
+                        <Typography variant="h6" sx={{ display: "inline", mr: 0.7 }}>
                             Your list total is
                         </Typography>
                         <Typography variant="h6" sx={{ fontWeight: "bold", display: "inline" }}>
                             <NumericFormat
                                 value={listItems?.totalCost}
-                                displayType='text'
+                                displayType="text"
                                 thousandSeparator={true}
-                                prefix='$'
+                                prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale={true}
                             />
@@ -66,18 +80,19 @@ const ListDetail: React.FC = () => {
                     ) : (
                         <List>
                             {listItems?.listItems.map((listItem) => (
-                                <ListItem 
-                                    key={listItem.id} 
+                                <ListItem
+                                    key={listItem.id}
                                     sx={{ borderBottom: "1px solid #ddd", "&:last-child": { borderBottom: "none" } }}
-                                >                            
+                                    onClick={() => handleListItemClick(listItem)}
+                                >
                                     <ListItemAvatar>
-                                        <Radio 
-                                            sx={{ 
-                                                color: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)", 
-                                                "&.Mui-checked": { 
-                                                    color: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)" 
-                                                } 
-                                            }} 
+                                        <Radio
+                                            sx={{
+                                                color: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)",
+                                                "&.Mui-checked": {
+                                                    color: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)"
+                                                }
+                                            }}
                                             value={listItem.id}
                                         />
                                     </ListItemAvatar>
@@ -95,11 +110,54 @@ const ListDetail: React.FC = () => {
             </Card>
 
             <ListItemModal listId={listId} open={openListItemModal} handleClose={handleCloseModal} />
+
+            <Drawer
+                anchor="bottom"
+                open={drawerOpen}
+                onClose={handleCloseDrawer}
+                sx={{
+                    "& .MuiDrawer-paper": {
+                        width: "100%",
+                        padding: "20px",
+                        borderTopLeftRadius: "16px",
+                        borderTopRightRadius: "16px"
+                    }
+                }}
+            >
+                <Box display="flex" flexDirection="column" alignItems="flex-start">
+                    <IconButton onClick={handleCloseDrawer} sx={{ alignSelf: "flex-end" }}>
+                        <CloseIcon />
+                    </IconButton>
+                    {selectedItem && (
+                        <>
+                            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                                {selectedItem.name}
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                                {selectedItem.description}
+                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: "100%", mt: 2 }}>
+                                <Chip label={selectedItem.category} color="primary" variant="outlined" />
+                                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                                    <NumericFormat
+                                        value={selectedItem.cost}
+                                        displayType="text"
+                                        thousandSeparator={true}
+                                        prefix="$"
+                                        decimalScale={2}
+                                        fixedDecimalScale={true}
+                                    />
+                                </Typography>
+                            </Box>
+                        </>
+                    )}
+                </Box>
+            </Drawer>
         </Container>
     );
-}
+};
 
-const StyledCardHeader = styled(CardHeader)({
+const StyledCardHeader = styled(CardHeader)(() => ({
     height: "150px",
     position: "relative",
     color: "white",
@@ -109,15 +167,15 @@ const StyledCardHeader = styled(CardHeader)({
     textAlign: "center",
     padding: "16px",
     "::before": {
-      content: '""',
-      position: "absolute",
-      width: "270px",
-      height: "270px",
-      background: "rgba(255, 255, 255, 0.1)",
-      top: "-140px",
-      right: "-90px",
-      borderRadius: "50%",
+        content: '""',
+        position: "absolute",
+        width: "270px",
+        height: "270px",
+        background: "rgba(255, 255, 255, 0.1)",
+        top: "-140px",
+        right: "-90px",
+        borderRadius: "50%",
     },
-});
+}));
 
 export default ListDetail;

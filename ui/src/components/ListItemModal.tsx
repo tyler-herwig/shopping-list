@@ -26,7 +26,7 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
 
     const validationSchema = Yup.object({
         name: Yup.string().required('Name is required'),
-        cost: Yup.number().min(0, 'Cost must be a positive number').required('Cost is required')
+        cost: Yup.number().min(0, 'Cost must be a positive number')
     });
 
     return (
