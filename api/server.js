@@ -204,7 +204,7 @@ app.get('/api/list-items', authenticateToken, async (req, res) => {
             ]
         });
 
-        if (!listItems || listItems.length === 0) {
+        if (!listItems) {
             return res.sendStatus(404);
         }
 

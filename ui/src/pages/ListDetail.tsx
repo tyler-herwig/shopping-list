@@ -58,21 +58,23 @@ const ListDetail: React.FC = () => {
                     subheaderTypographyProps={{ variant: 'body2', color: "rgba(255, 255, 255, 0.7)" }}
                 />
                 <CardContent>
-                    <Box>
-                        <Typography variant="h6" sx={{ display: "inline", mr: 0.7 }}>
-                            Your list total is
-                        </Typography>
-                        <Typography variant="h6" sx={{ fontWeight: "bold", display: "inline" }}>
-                            <NumericFormat
-                                value={listItems?.totalCost}
-                                displayType="text"
-                                thousandSeparator={true}
-                                prefix="$"
-                                decimalScale={2}
-                                fixedDecimalScale={true}
-                            />
-                        </Typography>
-                    </Box>
+                    {!!listItems?.totalCost && (
+                        <Box>
+                            <Typography variant="h6" sx={{ display: "inline", mr: 0.7 }}>
+                                Your list total is
+                            </Typography>
+                            <Typography variant="h6" sx={{ fontWeight: "bold", display: "inline" }}>
+                                <NumericFormat
+                                    value={listItems?.totalCost}
+                                    displayType="text"
+                                    thousandSeparator={true}
+                                    prefix="$"
+                                    decimalScale={2}
+                                    fixedDecimalScale={true}
+                                />
+                            </Typography>
+                        </Box>
+                    )}
                     {listItems?.listItems.length === 0 ? (
                         <Typography variant="h6" color="textSecondary" align="center">
                             No items found.
