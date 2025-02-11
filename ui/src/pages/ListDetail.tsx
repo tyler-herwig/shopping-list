@@ -59,7 +59,7 @@ const ListDetail: React.FC = () => {
                 />
                 <CardContent>
                     {!!listItems?.totalCost && (
-                        <Box>
+                        <Box sx={{ textAlign: "center" }}>
                             <Typography variant="h6" sx={{ display: "inline", mr: 0.7 }}>
                                 Your list total is
                             </Typography>

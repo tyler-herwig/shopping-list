@@ -1,5 +1,6 @@
-import { Button, Typography, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel, InputAdornment } from '@mui/material';
+import { Button, Typography, TextField, Dialog, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel, InputAdornment, IconButton, Box, styled } from '@mui/material';
 import React from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createNewListItem } from '../api/lists';
 import { Formik, Form, Field } from 'formik';
@@ -30,8 +31,15 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
     });
 
     return (
-        <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Add New List Item</DialogTitle>
+        <Dialog open={open} onClose={handleClose} fullScreen={true}>
+            <StyledBox>
+                <div>
+                    <IconButton onClick={handleClose} aria-label="close" sx={{ color: 'white' }}>
+                        <CloseIcon />
+                    </IconButton>
+                    <Typography variant="h6" sx={{ display: "inline"}}>New List Item</Typography>
+                </div>
+            </StyledBox>
             <DialogContent>
                 <Formik
                     initialValues={{
@@ -60,6 +68,11 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                                 variant="outlined"
                                 error={touched.name && Boolean(errors.name)}
                                 helperText={touched.name && errors.name}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '15px',
+                                    }
+                                }}
                             />
                             <Field
                                 as={TextField}
@@ -74,6 +87,11 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                                 rows={4}
                                 error={touched.description && Boolean(errors.description)}
                                 helperText={touched.description && errors.description}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '15px',
+                                    }
+                                }}
                             />
 
                             {/* Category Dropdown */}
@@ -86,6 +104,7 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     value={values.category}
+                                    sx={{ borderRadius: '15px' }}
                                 >
                                     <MenuItem value=""><em>None</em></MenuItem>
                                     {categories.map((category) => (
@@ -115,13 +134,17 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                                 }}
                                 error={touched.cost && Boolean(errors.cost)}
                                 helperText={touched.cost && errors.cost}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '15px',
+                                    }
+                                }}
                             />
 
                             {isError && <Typography color="error">Error adding list item!</Typography>}
                             <DialogActions>
-                                <Button onClick={handleClose}>Cancel</Button>
-                                <Button type="submit" color="primary">
-                                    Add List Item
+                                <Button type="submit" color="primary" sx={{ position: "fixed", top: 18, right: 18, color: 'white'}}>
+                                    Save
                                 </Button>
                             </DialogActions>
                         </Form>
@@ -131,5 +154,13 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
         </Dialog>
     );
 };
+
+const StyledBox = styled(Box)({
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    padding: '16px', 
+    color: 'white',
+    backgroundColor: '#6a1b9a'
+})
 
 export default ListItemModal;
