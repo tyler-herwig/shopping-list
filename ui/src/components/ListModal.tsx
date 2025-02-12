@@ -17,7 +17,7 @@ import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 
 interface ListModalProps {
-    userId: string | null;
+    userId: string | undefined;
     open: boolean;
     handleClose: () => void;
 }

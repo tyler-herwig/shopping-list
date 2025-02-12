@@ -6,13 +6,9 @@ import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../context/UserContext';
 import axios from '../utils/axiosConfig';
+import { IUser } from '../models/user';
 
-interface LoginResponse {
-  userId: string;
-  userName: string;
-  fullName: string;
-  firstName: string;
-  lastName: string;
+interface LoginResponse extends IUser {
   token: string;
 }
 
@@ -32,10 +28,10 @@ const Login: React.FC = () => {
         password: values.password,
       });
 
-      const { userId, userName, firstName, token } = response.data;
+      const { token, ...user } = response.data;
 
       localStorage.setItem('authToken', token);
-      setUserData(userId, userName, firstName);
+      setUserData(user);
       navigate('/dashboard');
     } catch (error) {
       // Handle error if login fails

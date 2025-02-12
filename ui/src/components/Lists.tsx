@@ -9,13 +9,13 @@ import ListModal from "./ListModal";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
 
 const Lists: React.FC = () => {
-    const { userId, firstName } = useUserContext();
+    const { user } = useUserContext();
     const { openListModal, handleCloseModal } = useBottomNavbar();
 
     const { data: lists, isLoading } = useQuery<IList[]>({
-        queryKey: ["lists", userId],
-        queryFn: () => fetchListsByUserId(userId),
-        enabled: !!userId,
+        queryKey: ["lists", user?.userId],
+        queryFn: () => fetchListsByUserId(user?.userId),
+        enabled: !!user?.userId,
     });
 
     if (isLoading)
@@ -42,14 +42,14 @@ const Lists: React.FC = () => {
             >
                 <Box>
                     <Typography variant="h4" fontWeight="bold">
-                        Hi {firstName}!
+                        Hi {user?.firstName}!
                     </Typography>
                     <Typography variant="h6" color="textSecondary" gutterBottom>
                         You have {lists?.length || 0} active lists.
                     </Typography>
                 </Box>
                 <Avatar sx={{ width: 56, height: 56 }}>
-                    {firstName?.charAt(0).toUpperCase()}
+                    {user?.firstName?.charAt(0).toUpperCase()}
                 </Avatar>
             </Box>
             <Container maxWidth="lg" sx={{ mb: 15 }}>
@@ -71,7 +71,7 @@ const Lists: React.FC = () => {
                 </Grid>
             </Container>
 
-            <ListModal userId={userId} open={openListModal} handleClose={handleCloseModal} />
+            <ListModal userId={user?.userId} open={openListModal} handleClose={handleCloseModal} />
         </>
     );
 };
