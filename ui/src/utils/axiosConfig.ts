@@ -18,7 +18,7 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 403) {
+    if (error.response && (error.response.status === 403 || error.response.status === 401)) {
       localStorage.removeItem('authToken');
       window.location.href = '/login';
     }

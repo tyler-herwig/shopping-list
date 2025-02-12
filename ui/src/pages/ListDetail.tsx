@@ -9,6 +9,7 @@ import ListItemModal from "../components/ListItemModal";
 import { NumericFormat } from "react-number-format";
 import { styled } from "@mui/system";
 import { Close as CloseIcon } from "@mui/icons-material";
+import Header from "../components/Header";
 
 const ListDetail: React.FC = () => {
     const { id } = useParams();
@@ -49,6 +50,11 @@ const ListDetail: React.FC = () => {
     }
 
     return (
+        <>
+        <Header
+            title="You have..."
+            subTitle={`${listItems?.listItems.length} active list items`}
+        />
         <Container maxWidth="lg" sx={{ mt: 2 }}>
             <Card sx={{ boxShadow: 3, borderRadius: 3, mb: 15 }}>
                 <StyledCardHeader
@@ -156,6 +162,7 @@ const ListDetail: React.FC = () => {
                 </Box>
             </Drawer>
         </Container>
+        </>
     );
 };
 

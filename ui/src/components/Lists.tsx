@@ -3,10 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useUserContext } from "../context/UserContext";
 import { fetchListsByUserId } from "../api/lists";
 import { IList } from "../models/lists";
-import { Container, CircularProgress, Grid, Box, Typography, Avatar } from "@mui/material";
+import { Container, CircularProgress, Grid, Box } from "@mui/material";
 import ListCard from "./ListCard";
 import ListModal from "./ListModal";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
+import Header from "./Header";
 
 const Lists: React.FC = () => {
     const { user } = useUserContext();
@@ -27,31 +28,10 @@ const Lists: React.FC = () => {
 
     return (
         <>
-            <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
-                mb={3}
-                sx={{
-                    width: "100%",
-                    backgroundColor: "#f4f4f4",
-                    borderBottomLeftRadius: "20px",
-                    borderBottomRightRadius: "20px",
-                    padding: "20px",
-                }}
-            >
-                <Box>
-                    <Typography variant="h4" fontWeight="bold">
-                        Hi {user?.firstName}!
-                    </Typography>
-                    <Typography variant="h6" color="textSecondary" gutterBottom>
-                        You have {lists?.length || 0} active lists.
-                    </Typography>
-                </Box>
-                <Avatar sx={{ width: 56, height: 56 }}>
-                    {user?.firstName?.charAt(0).toUpperCase()}
-                </Avatar>
-            </Box>
+            <Header
+                title={`Hi ${user?.firstName}!`}
+                subTitle={`You have ${lists?.length || 0} active lists.`}
+            />
             <Container maxWidth="lg" sx={{ mb: 15 }}>
                 <Grid container spacing={3}>
                     {lists?.map((list) => (
