@@ -34,7 +34,8 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count }) =>
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuClose = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
     setAnchorEl(null);
   };
 
@@ -46,7 +47,7 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count }) =>
   /* Delete Handlers */
   const handleDeleteMenuOption = (event: React.MouseEvent<HTMLElement>) => {
       event.stopPropagation();
-      handleMenuClose();
+      handleMenuClose(event);
       setOpenDeleteDialog(true);
   }
 

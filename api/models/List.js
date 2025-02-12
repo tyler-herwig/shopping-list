@@ -27,7 +27,8 @@ module.exports = (sequelize) => {
     List.associate = (models) => {
         List.hasMany(models.ListItem, {
             foreignKey: 'listId',
-            as: 'listItems'
+            as: 'listItems',
+            onDelete: 'CASCADE'
         });
     };
 
