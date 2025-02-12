@@ -24,14 +24,15 @@ const authenticateToken = require('./middleware/auth');
 
 // User registration endpoint
 app.post('/api/user', async (req, res) => {
-    const { userName, password } = req.body;
+    const { userName, password, firstName, lastName } = req.body;
     try {
         const existingUser = await User.findOne({ where: { userName } });
         if (existingUser) {
             return res.sendStatus(409);
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({ userName, password: hashedPassword });
+        const fullName = firstName + " " + lastName;
+        await User.create({ userName, password: hashedPassword, fullName, firstName, lastName });
         res.sendStatus(201);
     } catch (err) {
         console.error(err);
@@ -53,15 +54,11 @@ app.post('/api/login', async (req, res) => {
         }
         
         const token = generateToken(user);
-        res.json({ userId: user.userId, userName: user.userName, token });
+        res.json({ userId: user.userId, userName: user.userName, fullName: user.fullName, firstName: user.firstName, lastName: user.lastName, token });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
     }
-});
-
-app.get('/api/validate-token', authenticateToken, (req, res) => {
-    res.json({ message: "Token is valid!" });
 });
 
 /* -------------------------------- */

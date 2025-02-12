@@ -10,7 +10,7 @@ interface ListCardProps {
   id: number | undefined;
   title: string;
   description: string;
-  count: number;
+  count: number | undefined;
 }
 
 const ListCard: React.FC<ListCardProps> = ({ id, title, description, count }) => {

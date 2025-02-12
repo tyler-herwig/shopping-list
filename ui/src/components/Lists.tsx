@@ -9,7 +9,7 @@ import ListModal from "./ListModal";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
 
 const Lists: React.FC = () => {
-    const { userId, userName } = useUserContext();
+    const { userId, firstName } = useUserContext();
     const { openListModal, handleCloseModal } = useBottomNavbar();
 
     const { data: lists, isLoading } = useQuery<IList[]>({
@@ -42,14 +42,14 @@ const Lists: React.FC = () => {
             >
                 <Box>
                     <Typography variant="h4" fontWeight="bold">
-                        Hi {userName}!
+                        Hi {firstName}!
                     </Typography>
                     <Typography variant="h6" color="textSecondary" gutterBottom>
                         You have {lists?.length || 0} active lists.
                     </Typography>
                 </Box>
                 <Avatar sx={{ width: 56, height: 56 }}>
-                    {userName?.charAt(0).toUpperCase()}
+                    {firstName?.charAt(0).toUpperCase()}
                 </Avatar>
             </Box>
             <Container maxWidth="lg" sx={{ mb: 15 }}>

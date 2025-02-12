@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { BottomNavigation, BottomNavigationAction, Box } from '@mui/material';
+import { BottomNavigation, BottomNavigationAction } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
 import Search from '@mui/icons-material/Search';
@@ -11,6 +11,10 @@ const BottomNavbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { handleOpenListModal, handleOpenListItemModal } = useBottomNavbar();
+
+  if (location.pathname === '/' || location.pathname === '/login') {
+    return null;
+  }
 
   const handleBackButton = () => {
     navigate(-1);

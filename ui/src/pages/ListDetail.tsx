@@ -50,7 +50,7 @@ const ListDetail: React.FC = () => {
 
     return (
         <Container maxWidth="lg" sx={{ mt: 2 }}>
-            <Card sx={{ boxShadow: 3, borderRadius: 3 }}>
+            <Card sx={{ boxShadow: 3, borderRadius: 3, mb: 15 }}>
                 <StyledCardHeader
                     title={list?.name}
                     subheader={list?.description}
