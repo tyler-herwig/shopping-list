@@ -145,7 +145,9 @@ const ListDetail: React.FC = () => {
                                 {selectedItem.description}
                             </Typography>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', width: "100%", mt: 2 }}>
-                                <Chip label={selectedItem.category} color="primary" variant="outlined" />
+                                {selectedItem.category && (
+                                    <Chip label={selectedItem.category} color="primary" variant="outlined" />
+                                )}
                                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                                     <NumericFormat
                                         value={selectedItem.cost}

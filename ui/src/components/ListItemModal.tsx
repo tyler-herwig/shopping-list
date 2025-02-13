@@ -3,8 +3,9 @@ import React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createNewListItem } from '../api/lists';
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form, Field, FieldProps } from 'formik';
 import * as Yup from 'yup';
+import { NumericFormat } from 'react-number-format';
 
 interface ListItemModalProps {
     listId: number | null;
@@ -26,8 +27,11 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
     });
 
     const validationSchema = Yup.object({
-        name: Yup.string().required('Name is required'),
-        cost: Yup.number().min(0, 'Cost must be a positive number')
+        name: Yup.string()
+            .required('Name is required')
+            .max(100, 'Name must be less than 100 characters'),
+        description: Yup.string()
+            .max(500, 'Description must be less than 500 characters')
     });
 
     return (
@@ -47,15 +51,20 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                         name: '',
                         description: '',
                         category: '',
-                        cost: 0
+                        cost: null
                     }}
                     validationSchema={validationSchema}
                     onSubmit={(values, { resetForm }) => {
-                        mutate(values);
+                        const sanitizedValues = {
+                            ...values,
+                            cost: String(values.cost).replace(/,/g, '')
+                        };
+                        
+                        mutate({ ...sanitizedValues, cost: parseFloat(sanitizedValues.cost) });
                         resetForm();
-                    }}
+                    }}                    
                 >
-                    {({ errors, touched, handleChange, handleBlur, values }) => (
+                    {({ errors, touched, handleChange, handleBlur, values, isValid, dirty }) => (
                         <Form>
                             <Field
                                 as={TextField}
@@ -119,31 +128,41 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                             </FormControl>
 
                             {/* Cost Input with $ Adornment */}
-                            <Field
-                                as={TextField}
-                                fullWidth
-                                label="Cost"
-                                name="cost"
-                                type="number"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                margin="normal"
-                                variant="outlined"
-                                InputProps={{
-                                    startAdornment: <InputAdornment position="start">$</InputAdornment>
-                                }}
-                                error={touched.cost && Boolean(errors.cost)}
-                                helperText={touched.cost && errors.cost}
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: '15px',
-                                    }
-                                }}
-                            />
+                            <Field name="cost">
+                                {({ field, form }: FieldProps) => (
+                                    <NumericFormat
+                                        {...field}
+                                        customInput={TextField}
+                                        fullWidth
+                                        label="Cost"
+                                        margin="normal"
+                                        variant="outlined"
+                                        thousandSeparator=","
+                                        decimalScale={2}
+                                        fixedDecimalScale
+                                        allowNegative={false}
+                                        InputProps={{
+                                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                        }}
+                                        error={Boolean(form.touched.cost && form.errors.cost)}
+                                        helperText={form.touched.cost && typeof form.errors.cost === "string" ? form.errors.cost : ""}
+                                        sx={{
+                                            "& .MuiOutlinedInput-root": {
+                                            borderRadius: "15px",
+                                            },
+                                        }}
+                                    />
+                                )}
+                            </Field>
 
                             {isError && <Typography color="error">Error adding list item!</Typography>}
                             <DialogActions>
-                                <Button type="submit" color="primary" sx={{ position: "fixed", top: 18, right: 18, color: 'white'}}>
+                                <Button 
+                                    type="submit" 
+                                    color="primary" 
+                                    disabled={!isValid || !dirty}
+                                    sx={{ position: "fixed", top: 18, right: 18, color: 'white' }}
+                                >
                                     Save
                                 </Button>
                             </DialogActions>
