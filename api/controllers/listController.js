@@ -3,15 +3,36 @@ const { List, sequelize } = require('../models');
 exports.createList = async (req, res) => {
     const { name, description, userId } = req.body;
 
+    if (!name || !userId) {
+        return res.status(400).json({ error: "Name and User ID are required." });
+    }
+
     try {
         const existingList = await List.findOne({ where: { name } });
-        if (existingList) return res.sendStatus(409);
+        if (existingList) {
+            return res.status(409).json({
+                error: "A list with this name already exists. Please choose a different name."
+            });
+        }
 
         const list = await List.create({ name, description, userId });
-        res.json({ message: "List created successfully!", list });
+        return res.status(201).json({
+            message: "List created successfully!",
+            list,
+        });
     } catch (err) {
         console.error(err);
-        res.sendStatus(500);
+        
+        if (err.name === "SequelizeValidationError") {
+            return res.status(400).json({
+                error: err.errors.map((e) => e.message)
+            });
+        }
+
+        return res.status(500).json({
+            error: "An unexpected error occurred. Please try again later.",
+            details: err.message,
+        });
     }
 };
 

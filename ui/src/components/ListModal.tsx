@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     Button,
     Typography,
@@ -16,6 +16,7 @@ import { createNewList } from '../api/lists';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
+import useErrorHandling from '../hooks/useErrorHandling';
 
 interface ListModalProps {
     userId: string | undefined;
@@ -26,19 +27,31 @@ interface ListModalProps {
 const ListModal: React.FC<ListModalProps> = ({ userId, open, handleClose }) => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const { errorMessage, handleError, clearError } = useErrorHandling();
 
-    const { mutate, isError } = useMutation({
+    useEffect(() => {
+        clearError();
+      }, [open]);
+
+    const { mutate } = useMutation({
         mutationFn: createNewList,
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['lists'] });
             handleClose();
             navigate(`/dashboard/lists/${data.list.id}`);
+        },
+        onError: (error) => {
+            handleError(error);
         }
     });
 
     const validationSchema = Yup.object({
-        name: Yup.string().required('Name is required')
-    });
+        name: Yup.string()
+            .required('Name is required')
+            .max(100, 'Name must be less than 100 characters'),
+        description: Yup.string()
+            .max(500, 'Description must be less than 500 characters')
+    });    
 
     return (
         <Dialog open={open} onClose={handleClose} fullScreen={true}>
@@ -63,7 +76,7 @@ const ListModal: React.FC<ListModalProps> = ({ userId, open, handleClose }) => {
                         resetForm();
                     }}
                 >
-                    {({ errors, touched, handleChange, handleBlur }) => (
+                    {({ errors, touched, handleChange, handleBlur, isValid, dirty }) => (
                         <Form>
                             <Field
                                 as={TextField}
@@ -101,9 +114,14 @@ const ListModal: React.FC<ListModalProps> = ({ userId, open, handleClose }) => {
                                     }
                                 }}
                             />
-                            {isError && <Typography color="error">Error adding list!</Typography>}
+                            {errorMessage && <Typography color="error">{errorMessage}</Typography>}
                             <DialogActions>
-                                <Button type="submit" color="primary" sx={{ position: "fixed", top: 18, right: 18, color: 'white'}}>
+                                <Button 
+                                    type="submit" 
+                                    color="primary" 
+                                    disabled={!isValid || !dirty}
+                                    sx={{ position: "fixed", top: 18, right: 18, color: 'white' }}
+                                >
                                     Save
                                 </Button>
                             </DialogActions>

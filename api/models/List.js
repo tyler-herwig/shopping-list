@@ -9,11 +9,18 @@ module.exports = (sequelize) => {
         },
         name: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                notEmpty: { msg: "Name cannot be empty." },
+                len: { args: [1, 100], msg: "Name must be between 1 and 100 characters." }
+            }
         },
         description: {
             type: DataTypes.STRING,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                len: { args: [0, 500], msg: "Description must be less than 500 characters." }
+            }
         },
         userId: {
             type: DataTypes.INTEGER,

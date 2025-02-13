@@ -66,7 +66,7 @@ const Lists: React.FC = () => {
                 <Grid container spacing={3}>
                     {data?.pages.map((page) =>
                         page.lists.map((list) => (
-                            <Grid item xs={12} sm={6} md={4} key={list.id}>
+                            <Grid item xs={12} sm={6} key={list.id}>
                                 <Box>
                                     <ListCard
                                         id={list.id}
