@@ -14,7 +14,7 @@ export const fetchListById = async (id: string | undefined): Promise<IList> => {
 }
 
 export const createNewList = async (list: IList) => {
-    const response = await axios.post<IList>('/lists', list);
+    const response = await axios.post<{ list: IList }>('/lists', list);
 
     return response.data;
 }

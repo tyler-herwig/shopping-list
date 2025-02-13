@@ -51,6 +51,7 @@ const Lists: React.FC = () => {
 
     return (
         <Box
+            className="lazy-load-container"
             sx={{height: "100vh", overflowY: "auto"}}
             onScroll={loadMore}
         >

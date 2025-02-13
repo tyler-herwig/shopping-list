@@ -15,6 +15,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createNewList } from '../api/lists';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
+import { useNavigate } from 'react-router-dom';
 
 interface ListModalProps {
     userId: string | undefined;
@@ -24,12 +25,14 @@ interface ListModalProps {
 
 const ListModal: React.FC<ListModalProps> = ({ userId, open, handleClose }) => {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const { mutate, isError } = useMutation({
         mutationFn: createNewList,
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['lists'] });
             handleClose();
+            navigate(`/dashboard/lists/${data.list.id}`);
         }
     });
 
