@@ -1,10 +1,10 @@
 import axios from '../utils/axiosConfig';
-import { IList, IListItem, IListItemResponse } from '../models/lists';
+import { IList, IListItem, IListItemResponse, IListResponse } from '../models/lists';
 
-export const fetchListsByUserId = async (userId: string | undefined): Promise<IList[]> => {
-    const response = await axios.get<{lists: IList[] }>(`/lists?userId=${userId}`);
+export const fetchListsByUserId = async (userId: string | undefined, page: number | unknown = 1, limit: number = 10): Promise<IListResponse> => {
+    const response = await axios.get<{ lists: IList[], total: number, totalPages: number, currentPage: number }>(`/lists?userId=${userId}&page=${page}&limit=${limit}`);
 
-    return response.data.lists;
+    return response.data;
 }
 
 export const fetchListById = async (id: string | undefined): Promise<IList> => {
@@ -26,7 +26,7 @@ export const deleteList = async(id: number | undefined) => {
 }
 
 export const fetchListItemsByListId = async (id: string | undefined): Promise<IListItemResponse> => {
-    const response = await axios.get<{listItems: IListItem[], totalCost: number }>(`/list-items?listId=${id}`);
+    const response = await axios.get<{ listItems: IListItem[], totalCost: number }>(`/list-items?listId=${id}`);
 
     return response.data;
 }

@@ -1,3 +1,11 @@
+export interface IListResponse {
+    lists: IList[];
+    total: number;
+    totalPages: number;
+    currentPage: number;
+
+}
+
 export interface IList {
     id?: number;
     name: string;
