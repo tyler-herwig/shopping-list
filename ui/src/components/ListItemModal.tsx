@@ -8,7 +8,7 @@ import * as Yup from 'yup';
 import { NumericFormat } from 'react-number-format';
 
 interface ListItemModalProps {
-    listId: number | null;
+    listId: number | undefined;
     open: boolean;
     handleClose: () => void;
 }

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useUserContext } from "../context/UserContext";
 import { fetchListsByUserId } from "../api/lists";
@@ -11,7 +11,13 @@ import Header from "./Header";
 
 const Lists: React.FC = () => {
     const { user } = useUserContext();
-    const { openListModal, handleCloseModal } = useBottomNavbar();
+    const { openListModal, handleOpenListModal, handleCloseModal } = useBottomNavbar();
+    const [selectedListId, setSelectedListId] = useState<number | undefined>();
+
+    const handleEditClick = (listId: number | undefined) => {
+        setSelectedListId(listId);
+        handleOpenListModal();
+    };
 
     const {
         data,
@@ -73,6 +79,7 @@ const Lists: React.FC = () => {
                                         title={list.name}
                                         description={list.description}
                                         count={list.listItemCount}
+                                        handleEditClick={handleEditClick}
                                     />
                                 </Box>
                             </Grid>
@@ -87,7 +94,15 @@ const Lists: React.FC = () => {
                 )}
             </Container>
 
-            <ListModal userId={user?.userId} open={openListModal} handleClose={handleCloseModal} />
+            <ListModal 
+                userId={user?.userId} 
+                open={openListModal} 
+                handleClose={() => {
+                    setSelectedListId(undefined);
+                    handleCloseModal();
+                }} 
+                listId={selectedListId}
+            />
         </Box>
     );
 };

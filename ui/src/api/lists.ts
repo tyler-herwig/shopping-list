@@ -7,7 +7,7 @@ export const fetchListsByUserId = async (userId: string | undefined, page: numbe
     return response.data;
 }
 
-export const fetchListById = async (id: string | undefined): Promise<IList> => {
+export const fetchListById = async (id: number | undefined): Promise<IList> => {
     const response = await axios.get<{ list: IList }>(`/lists/${id}`);
 
     return response.data.list;
@@ -19,13 +19,19 @@ export const createNewList = async (list: IList) => {
     return response.data;
 }
 
+export const updateList = async (id: number | undefined, list: IList) => {
+    const response = await axios.put<{ list: IList }>(`/lists/${id}`, list);
+
+    return response.data;
+}
+
 export const deleteList = async(id: number | undefined) => {
     const response = await axios.delete<number>(`/lists/${id}`);
 
     return response;
 }
 
-export const fetchListItemsByListId = async (id: string | undefined): Promise<IListItemResponse> => {
+export const fetchListItemsByListId = async (id: number | undefined): Promise<IListItemResponse> => {
     const response = await axios.get<{ listItems: IListItem[], totalCost: number }>(`/list-items?listId=${id}`);
 
     return response.data;

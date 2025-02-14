@@ -13,19 +13,19 @@ import Header from "../components/Header";
 
 const ListDetail: React.FC = () => {
     const { id } = useParams();
-    const listId = id ? parseInt(id) : null;
+    const listId = id ? parseInt(id) : undefined;
     const { openListItemModal, handleCloseModal } = useBottomNavbar();
 
     const { data: list, isLoading: isLoadingList } = useQuery<IList>({
-        queryKey: ['list', id],
-        queryFn: () => fetchListById(id),
-        enabled: !!id
+        queryKey: ['list', listId],
+        queryFn: () => fetchListById(listId),
+        enabled: !!listId
     });
 
     const { data: listItems, isLoading: isLoadingListItems } = useQuery<IListItemResponse>({
-        queryKey: ['listItem', id],
-        queryFn: () => fetchListItemsByListId(id),
-        enabled: !!id
+        queryKey: ['listItem', listId],
+        queryFn: () => fetchListItemsByListId(listId),
+        enabled: !!listId
     });
 
     const [drawerOpen, setDrawerOpen] = useState(false);

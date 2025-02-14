@@ -11,9 +11,10 @@ interface ListCardProps {
   title: string;
   description: string;
   count: number | undefined;
+  handleEditClick: (id: number | undefined) => void;
 }
 
-const ListCard: React.FC<ListCardProps> = ({ id, title, description, count }) => {
+const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, handleEditClick }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 
@@ -43,6 +44,13 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count }) =>
   const handleCardClick = () => {
     navigate(`/dashboard/lists/${id}`); 
   };
+
+  /* Edit Handlers */
+  const handleEditMenuOption = (id: number | undefined, event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    handleMenuClose(event);
+    handleEditClick(id);
+  }
 
   /* Delete Handlers */
   const handleDeleteMenuOption = (event: React.MouseEvent<HTMLElement>) => {
@@ -98,7 +106,15 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count }) =>
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
         >
-          <MenuItem onClick={handleMenuClose}>Edit</MenuItem>
+          <MenuItem 
+            onClick={
+              (event) => {
+                handleEditMenuOption(id, event);
+              }
+            }
+          >
+            Edit
+          </MenuItem>
           <MenuItem 
             onClick={handleDeleteMenuOption}
           >
