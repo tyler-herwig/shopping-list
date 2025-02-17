@@ -11,6 +11,7 @@ import BottomNavbar from './components/BottomNavbar';
 import { BottomNavbarProvider } from './context/BottomNavbarContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RedirectIfAuthenticated from './components/RedirectIfAuthenticated';
+import Register from './pages/Register';
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,14 @@ const App: React.FC = () => {
                   element={
                     <RedirectIfAuthenticated>
                       <Login />
+                    </RedirectIfAuthenticated>
+                  }
+                />
+                <Route
+                  path="/register"
+                  element={
+                    <RedirectIfAuthenticated>
+                      <Register />
                     </RedirectIfAuthenticated>
                   }
                 />

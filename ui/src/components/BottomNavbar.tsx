@@ -12,7 +12,7 @@ const BottomNavbar: React.FC = () => {
   const location = useLocation();
   const { handleOpenListModal, handleOpenListItemModal } = useBottomNavbar();
 
-  if (location.pathname === '/' || location.pathname === '/login') {
+  if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') {
     return null;
   }
 

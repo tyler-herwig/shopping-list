@@ -64,6 +64,7 @@ const Login: React.FC = () => {
                 color: 'white',
               },
             }}
+            onClick={() => navigate('/register')}
           >
             Get Started
           </Button>
