@@ -118,10 +118,7 @@ const Lists: React.FC = () => {
                             <Grid item xs={12} sm={6} key={list.id}>
                                 <Box>
                                     <ListCard
-                                        id={list.id}
-                                        title={list.name}
-                                        description={list.description}
-                                        count={list.listItemCount}
+                                        list={list}
                                         handleEditClick={handleEditClick}
                                     />
                                 </Box>

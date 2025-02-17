@@ -12,6 +12,7 @@ export interface IList {
     description: string;
     userId?: string | null;
     listItemCount?: number;
+    completedListItemCount?: number;
 }
 
 export interface IListItemResponse {

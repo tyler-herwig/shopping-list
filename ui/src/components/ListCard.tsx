@@ -1,20 +1,18 @@
 import React, { useState } from "react";
-import { Card, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Button, Divider, Dialog, DialogActions, DialogContent, DialogTitle, ListItemIcon } from "@mui/material";
+import { Card, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Button, Divider, Dialog, DialogActions, DialogContent, DialogTitle, ListItemIcon, LinearProgress } from "@mui/material";
 import { styled } from "@mui/system";
 import { MoreHoriz, Edit, Delete, Close } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteList } from "../api/lists";
+import { IList } from "../models/lists";
 
 interface ListCardProps {
-  id: number | undefined;
-  title: string;
-  description: string;
-  count: number | undefined;
+  list: IList;
   handleEditClick: (id: number | undefined) => void;
 }
 
-const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, handleEditClick }) => {
+const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick }) => {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 
@@ -31,7 +29,7 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, hand
 
   /* Card Handlers */
   const handleCardClick = () => {
-    navigate(`/dashboard/lists/${id}`);
+    navigate(`/dashboard/lists/${list.id}`);
   };
 
   const handleMoreButton = (event: React.MouseEvent<HTMLElement>) => {
@@ -58,18 +56,21 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, hand
   };
 
   const handleDelete = () => {
-    mutate(id);
+    mutate(list.id);
   };
+
+  // Calculate the percentage
+  const completionPercentage = list.listItemCount ? ((list.completedListItemCount || 0) / list.listItemCount) * 100 : 0;
 
   return (
     <>
       <StyledCard onClick={handleCardClick}>
         <Box>
           <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-            {title}
+            {list.name}
           </Typography>
           <Typography variant="body2" sx={{ color: "rgba(255, 255, 255, 0.7)" }}>
-            {description}
+            {list.description}
           </Typography>
         </Box>
         <Box
@@ -89,9 +90,15 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, hand
             <MoreHoriz />
           </IconButton>
         </Box>
-        <Box>
-          <Typography variant="h3" sx={{ fontWeight: "bold", marginRight: 8 }}>
-            {count}
+
+        <Box sx={{ width: "100%", marginTop: 2 }}>
+          <LinearProgress
+            variant="determinate"
+            value={completionPercentage}
+            sx={{ height: 6, borderRadius: 2 }}
+          />
+          <Typography variant="body2" sx={{ textAlign: "right", marginTop: 1 }}>
+            {list.completedListItemCount}/{list.listItemCount}
           </Typography>
         </Box>
       </StyledCard>
@@ -122,7 +129,7 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, hand
         </Box>
 
         <List>
-          <ListItem onClick={(e) => handleEditMenuOption(id, e)}>
+          <ListItem onClick={(e) => handleEditMenuOption(list.id, e)}>
             <ListItemIcon>
               <Edit/>
             </ListItemIcon>
@@ -142,7 +149,7 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, hand
       <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
         <DialogTitle>{"Delete List"}</DialogTitle>
         <DialogContent>
-          Are you sure you want to delete <Typography sx={{ fontWeight: 'bold', display: 'inline' }}>{title}</Typography>?
+          Are you sure you want to delete <Typography sx={{ fontWeight: 'bold', display: 'inline' }}>{list.name}</Typography>?
           {isError && <Typography color="error">Error deleting list!</Typography>}
         </DialogContent>
         <DialogActions>
@@ -164,7 +171,6 @@ const StyledCard = styled(Card)({
   boxShadow: "3px 3px 10px rgba(0,0,0,0.1)",
   overflow: "hidden",
   background: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)",
-  display: "flex",
   alignItems: "center",
   padding: "16px",
   justifyContent: "space-between",

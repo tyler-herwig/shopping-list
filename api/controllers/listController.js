@@ -62,7 +62,8 @@ exports.getLists = async (req, res) => {
             where: whereClause,
             attributes: [
                 'id', 'name', 'description', 'userId',
-                [sequelize.literal(`(SELECT COUNT(*) FROM listitems WHERE listitems.listId = List.id)`), 'listItemCount']
+                [sequelize.literal(`(SELECT COUNT(*) FROM listitems WHERE listitems.listId = List.id)`), 'listItemCount'],
+                [sequelize.literal(`(SELECT COUNT(*) FROM listitems WHERE listitems.listId = List.id AND listitems.purchased = true)`), 'completedListItemCount']
             ],
             limit,
             offset,
