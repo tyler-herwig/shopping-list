@@ -31,6 +31,12 @@ export const deleteList = async(id: number | undefined) => {
     return response;
 }
 
+export const fetchListItemById = async (id: number | undefined): Promise<IListItem> => {
+    const response = await axios.get<{ listItem: IListItem }>(`/list-items/${id}`);
+
+    return response.data.listItem;
+}
+
 export const fetchListItemsByListId = async (id: number | undefined): Promise<IListItemResponse> => {
     const response = await axios.get<{ listItems: IListItem[], totalCost: number }>(`/list-items?listId=${id}`);
 
@@ -39,6 +45,12 @@ export const fetchListItemsByListId = async (id: number | undefined): Promise<IL
 
 export const createNewListItem = async (listItem: IListItem) => {
     const response = await axios.post<IListItem>('/list-items', listItem);
+
+    return response.data;
+}
+
+export const updateListItem = async (id: number | undefined, listItem: IListItem) => {
+    const response = await axios.put<{ listItem: IListItem }>(`/list-items/${id}`, listItem);
 
     return response.data;
 }

@@ -1,8 +1,12 @@
-import { Button, Typography, TextField, Dialog, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel, InputAdornment, IconButton, Box, styled } from '@mui/material';
+import { 
+    Button, Typography, TextField, Dialog, DialogContent, DialogActions, 
+    Select, MenuItem, FormControl, InputLabel, InputAdornment, IconButton, 
+    Box, styled 
+} from '@mui/material';
 import React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createNewListItem } from '../api/lists';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createNewListItem, updateListItem, fetchListItemById } from '../api/lists';
 import { Formik, Form, Field, FieldProps } from 'formik';
 import * as Yup from 'yup';
 import { NumericFormat } from 'react-number-format';
@@ -11,17 +15,33 @@ interface ListItemModalProps {
     listId: number | undefined;
     open: boolean;
     handleClose: () => void;
+    listItemId?: number | undefined;
 }
 
 const categories = ['Groceries', 'Electronics', 'Clothing', 'Books', 'Household']; // Sample categories
 
-const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose }) => {
+const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose, listItemId }) => {
     const queryClient = useQueryClient();
 
-    const { mutate, isError } = useMutation({
+    // Fetch the list item data if we are in edit mode
+    const { data: listItemData, isLoading } = useQuery({
+        queryKey: ['listItem', listItemId],
+        queryFn: () => listItemId ? fetchListItemById(listItemId) : null,
+        enabled: !!listItemId, // Only fetch if listItemId exists
+    });
+
+    const { mutate: createItem, isError: createError } = useMutation({
         mutationFn: createNewListItem,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['listItem'] });
+            queryClient.invalidateQueries({ queryKey: ['listItems'] });
+            handleClose();
+        }
+    });
+
+    const { mutate: updateItem, isError: updateError } = useMutation({
+        mutationFn: (updatedItem: any) => updateListItem(listItemId!, updatedItem),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['listItems'] });
             handleClose();
         }
     });
@@ -34,6 +54,10 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
             .max(500, 'Description must be less than 500 characters')
     });
 
+    if (isLoading) {
+        return <Typography>Loading...</Typography>;
+    }
+
     return (
         <Dialog open={open} onClose={handleClose} fullScreen={true}>
             <StyledBox>
@@ -41,28 +65,36 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                     <IconButton onClick={handleClose} aria-label="close" sx={{ color: 'white' }}>
                         <CloseIcon />
                     </IconButton>
-                    <Typography variant="h6" sx={{ display: "inline"}}>New List Item</Typography>
+                    <Typography variant="h6" sx={{ display: "inline" }}>
+                        {listItemId ? "Edit List Item" : "New List Item"}
+                    </Typography>
                 </div>
             </StyledBox>
             <DialogContent>
                 <Formik
                     initialValues={{
                         listId: listId || null,
-                        name: '',
-                        description: '',
-                        category: '',
-                        cost: null
+                        name: listItemData?.name || '',
+                        description: listItemData?.description || '',
+                        category: listItemData?.category || '',
+                        cost: listItemData?.cost || null,
                     }}
                     validationSchema={validationSchema}
+                    enableReinitialize
                     onSubmit={(values, { resetForm }) => {
                         const sanitizedValues = {
                             ...values,
-                            cost: String(values.cost).replace(/,/g, '')
+                            cost: parseFloat(String(values.cost).replace(/,/g, '')),
                         };
-                        
-                        mutate({ ...sanitizedValues, cost: parseFloat(sanitizedValues.cost) });
+
+                        if (listItemId) {
+                            updateItem(sanitizedValues);
+                        } else {
+                            createItem(sanitizedValues);
+                        }
+
                         resetForm();
-                    }}                    
+                    }}
                 >
                     {({ errors, touched, handleChange, handleBlur, values, isValid, dirty }) => (
                         <Form>
@@ -77,11 +109,7 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                                 variant="outlined"
                                 error={touched.name && Boolean(errors.name)}
                                 helperText={touched.name && errors.name}
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: '15px',
-                                    }
-                                }}
+                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
                             />
                             <Field
                                 as={TextField}
@@ -96,15 +124,11 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                                 rows={4}
                                 error={touched.description && Boolean(errors.description)}
                                 helperText={touched.description && errors.description}
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: '15px',
-                                    }
-                                }}
+                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
                             />
 
                             {/* Category Dropdown */}
-                            <FormControl fullWidth margin="normal" variant="outlined" error={touched.category && Boolean(errors.category)}>
+                            <FormControl fullWidth margin="normal" variant="outlined">
                                 <InputLabel>Category</InputLabel>
                                 <Field
                                     as={Select}
@@ -127,7 +151,7 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                                 )}
                             </FormControl>
 
-                            {/* Cost Input with $ Adornment */}
+                            {/* Cost Input */}
                             <Field name="cost">
                                 {({ field, form }: FieldProps) => (
                                     <NumericFormat
@@ -146,16 +170,14 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                                         }}
                                         error={Boolean(form.touched.cost && form.errors.cost)}
                                         helperText={form.touched.cost && typeof form.errors.cost === "string" ? form.errors.cost : ""}
-                                        sx={{
-                                            "& .MuiOutlinedInput-root": {
-                                            borderRadius: "15px",
-                                            },
-                                        }}
+                                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "15px" } }}
                                     />
                                 )}
                             </Field>
 
-                            {isError && <Typography color="error">Error adding list item!</Typography>}
+                            {(createError || updateError) && (
+                                <Typography color="error">Error processing request!</Typography>
+                            )}
                             <DialogActions>
                                 <Button 
                                     type="submit" 
@@ -163,7 +185,7 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                                     disabled={!isValid || !dirty}
                                     sx={{ position: "fixed", top: 18, right: 18, color: 'white' }}
                                 >
-                                    Save
+                                    {listItemId ? "Update" : "Save"}
                                 </Button>
                             </DialogActions>
                         </Form>
@@ -180,6 +202,6 @@ const StyledBox = styled(Box)({
     padding: '16px', 
     color: 'white',
     backgroundColor: '#6a1b9a'
-})
+});
 
 export default ListItemModal;

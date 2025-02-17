@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { IList, IListItem, IListItemResponse } from "../models/lists";
 import { fetchListById, fetchListItemsByListId } from "../api/lists";
-import { CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box, Radio, Chip, Drawer, IconButton } from "@mui/material";
+import { CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box, Radio, Chip, Drawer, IconButton, Button } from "@mui/material";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
 import ListItemModal from "../components/ListItemModal";
 import { NumericFormat } from "react-number-format";
@@ -14,7 +14,7 @@ import Header from "../components/Header";
 const ListDetail: React.FC = () => {
     const { id } = useParams();
     const listId = id ? parseInt(id) : undefined;
-    const { openListItemModal, handleCloseModal } = useBottomNavbar();
+    const { openListItemModal, handleOpenListItemModal, handleCloseModal } = useBottomNavbar();
 
     const { data: list, isLoading: isLoadingList } = useQuery<IList>({
         queryKey: ['list', listId],
@@ -23,13 +23,14 @@ const ListDetail: React.FC = () => {
     });
 
     const { data: listItems, isLoading: isLoadingListItems } = useQuery<IListItemResponse>({
-        queryKey: ['listItem', listId],
+        queryKey: ['listItems', listId],
         queryFn: () => fetchListItemsByListId(listId),
         enabled: !!listId
     });
 
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<IListItem | null>(null);
+    const [selectedListItemId, setSelectedListItemId] = useState<number | undefined>();
 
     const handleListItemClick = (item: IListItem) => {
         setSelectedItem(item);
@@ -39,6 +40,12 @@ const ListDetail: React.FC = () => {
     const handleCloseDrawer = () => {
         setDrawerOpen(false);
         setSelectedItem(null);
+    };
+
+    const handleEditClick = (listItemId: number | undefined, event: React.MouseEvent<HTMLElement>) => {
+        event.stopPropagation();
+        setSelectedListItemId(listItemId);
+        handleOpenListItemModal();
     };
 
     if (isLoadingList || isLoadingListItems) {
@@ -110,6 +117,11 @@ const ListDetail: React.FC = () => {
                                         primaryTypographyProps={{ variant: 'h6' }}
                                         secondaryTypographyProps={{ variant: 'body2', color: 'textSecondary' }}
                                     />
+                                    <Button 
+                                        onClick={(e) => handleEditClick(listItem.id, e)}
+                                    >
+                                        Edit
+                                    </Button>
                                 </ListItem>
                             ))}
                         </List>
@@ -117,7 +129,15 @@ const ListDetail: React.FC = () => {
                 </CardContent>
             </Card>
 
-            <ListItemModal listId={listId} open={openListItemModal} handleClose={handleCloseModal} />
+            <ListItemModal 
+                listId={listId} 
+                open={openListItemModal} 
+                handleClose={() => {
+                    setSelectedListItemId(undefined);
+                    handleCloseModal();
+                }} 
+                listItemId={selectedListItemId} 
+            />
 
             <Drawer
                 anchor="bottom"
