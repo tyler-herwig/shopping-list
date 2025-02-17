@@ -22,12 +22,12 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, hand
   const queryClient = useQueryClient();
 
   const {mutate, isError } = useMutation({
-    mutationFn: deleteList,
-    onSuccess: () => {
-        queryClient.invalidateQueries({queryKey: ['lists'] });
-        setOpenDeleteDialog(false);
-    }
-})
+      mutationFn: deleteList,
+      onSuccess: () => {
+          queryClient.invalidateQueries({queryKey: ['lists'] });
+          setOpenDeleteDialog(false);
+      }
+  })
 
   /* Settings Menu Handlers */
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -107,11 +107,7 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, hand
           onClose={handleMenuClose}
         >
           <MenuItem 
-            onClick={
-              (event) => {
-                handleEditMenuOption(id, event);
-              }
-            }
+            onClick={(e) => { handleEditMenuOption(id, e)} }
           >
             Edit
           </MenuItem>

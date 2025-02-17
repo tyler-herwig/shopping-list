@@ -54,3 +54,9 @@ export const updateListItem = async (id: number | undefined, listItem: IListItem
 
     return response.data;
 }
+
+export const deleteListItem = async(id: number | undefined) => {
+    const response = await axios.delete<number>(`/list-items/${id}`);
+
+    return response;
+}

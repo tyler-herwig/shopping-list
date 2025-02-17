@@ -1,20 +1,27 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { IList, IListItem, IListItemResponse } from "../models/lists";
-import { fetchListById, fetchListItemsByListId } from "../api/lists";
-import { CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box, Radio, Chip, Drawer, IconButton, Button } from "@mui/material";
+import { deleteListItem, fetchListById, fetchListItemsByListId } from "../api/lists";
+import { CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box, Radio, Chip, Drawer, IconButton, Button, Menu, MenuItem, Dialog, DialogTitle, DialogActions, DialogContent } from "@mui/material";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
 import ListItemModal from "../components/ListItemModal";
 import { NumericFormat } from "react-number-format";
 import { styled } from "@mui/system";
-import { Close as CloseIcon } from "@mui/icons-material";
+import { Close as CloseIcon, MoreHoriz } from "@mui/icons-material";
 import Header from "../components/Header";
 
 const ListDetail: React.FC = () => {
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<IListItem | null>(null);
+    const [selectedListItemId, setSelectedListItemId] = useState<number | undefined>();
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+
     const { id } = useParams();
     const listId = id ? parseInt(id) : undefined;
     const { openListItemModal, handleOpenListItemModal, handleCloseModal } = useBottomNavbar();
+    const queryClient = useQueryClient();
 
     const { data: list, isLoading: isLoadingList } = useQuery<IList>({
         queryKey: ['list', listId],
@@ -28,10 +35,26 @@ const ListDetail: React.FC = () => {
         enabled: !!listId
     });
 
-    const [drawerOpen, setDrawerOpen] = useState(false);
-    const [selectedItem, setSelectedItem] = useState<IListItem | null>(null);
-    const [selectedListItemId, setSelectedListItemId] = useState<number | undefined>();
+    const {mutate, isError } = useMutation({
+        mutationFn: deleteListItem,
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['listItems'] });
+            setOpenDeleteDialog(false);
+        }
+    })
 
+    /* Settings Menu Handlers */
+      const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+        event.stopPropagation();
+        setAnchorEl(event.currentTarget);
+      };
+    
+      const handleMenuClose = (event: React.MouseEvent<HTMLElement>) => {
+        event.stopPropagation();
+        setAnchorEl(null);
+      };
+
+    /* List Item Handlers */
     const handleListItemClick = (item: IListItem) => {
         setSelectedItem(item);
         setDrawerOpen(true);
@@ -42,11 +65,29 @@ const ListDetail: React.FC = () => {
         setSelectedItem(null);
     };
 
-    const handleEditClick = (listItemId: number | undefined, event: React.MouseEvent<HTMLElement>) => {
+    /* Edit Handlers */
+    const handleEditMenuOption = (listItemId: number | undefined, event: React.MouseEvent<HTMLElement>) => {
         event.stopPropagation();
+        handleMenuClose(event);
         setSelectedListItemId(listItemId);
         handleOpenListItemModal();
     };
+
+    /* Delete Handlers */
+      const handleDeleteMenuOption = (listItemId: number | undefined, event: React.MouseEvent<HTMLElement>) => {
+          event.stopPropagation();
+          handleMenuClose(event);
+          setSelectedListItemId(listItemId);
+          setOpenDeleteDialog(true);
+      }
+    
+      const handleDeleteDialogClose = () => {
+        setOpenDeleteDialog(false);
+      }
+    
+      const handleDelete = (listItemId: number | undefined) => {
+        mutate(listItemId);
+      }
 
     if (isLoadingList || isLoadingListItems) {
         return (
@@ -117,11 +158,25 @@ const ListDetail: React.FC = () => {
                                         primaryTypographyProps={{ variant: 'h6' }}
                                         secondaryTypographyProps={{ variant: 'body2', color: 'textSecondary' }}
                                     />
-                                    <Button 
-                                        onClick={(e) => handleEditClick(listItem.id, e)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    <IconButton onClick={handleMenuClick}>
+                                        <MoreHoriz />
+                                    </IconButton>
+                                    <Menu
+                                        anchorEl={anchorEl}
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleMenuClose}
+                                        >
+                                        <MenuItem 
+                                            onClick={(e) => { handleEditMenuOption(listItem.id, e)} }
+                                        >
+                                            Edit
+                                        </MenuItem>
+                                        <MenuItem 
+                                            onClick={(e) => { handleDeleteMenuOption(listItem.id, e)} }
+                                        >
+                                            Delete
+                                        </MenuItem>
+                                    </Menu>
                                 </ListItem>
                             ))}
                         </List>
@@ -183,6 +238,27 @@ const ListDetail: React.FC = () => {
                     )}
                 </Box>
             </Drawer>
+
+            <Dialog
+                open={openDeleteDialog}
+                onClose={handleDeleteDialogClose}
+            >
+                <DialogTitle>
+                    Delete List Item
+                </DialogTitle>
+                <DialogContent>
+                    Are you sure you want to delete this list item?
+                    {isError && <Typography color="error">Error deleting list item!</Typography>}
+                </DialogContent>
+                <DialogActions>
+                    <Button autoFocus onClick={handleDeleteDialogClose}>
+                        Cancel
+                    </Button>
+                    <Button onClick={() => handleDelete(selectedListItemId)}>
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
         </>
     );
