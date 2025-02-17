@@ -14,7 +14,7 @@ const queryClient = new QueryClient();
 
 const theme = createTheme({
   typography: {
-    fontFamily: "'Poppins', sans-serif", // Apply Google Font here
+    fontFamily: "'Poppins', sans-serif"
   },
 });
 
@@ -28,10 +28,10 @@ const App: React.FC = () => {
               <CssBaseline />
               <BottomNavbar/>
               <Routes>
+                <Route path="/" element={<Login />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/dashboard" element={<Lists />} />
                 <Route path="/dashboard/lists/:id" element={<ListDetail/>} />
-                <Route path="/" element={<Login />} />
               </Routes>
             </Router>
           </BottomNavbarProvider>
