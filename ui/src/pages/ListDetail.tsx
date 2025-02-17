@@ -3,20 +3,20 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { IList, IListItem, IListItemResponse } from "../models/lists";
 import { deleteListItem, fetchListById, fetchListItemsByListId } from "../api/lists";
-import { CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box, Chip, Drawer, IconButton, Button, Menu, MenuItem, Dialog, DialogTitle, DialogActions, DialogContent, Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
+import { CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box, Chip, Drawer, IconButton, Button, Dialog, DialogTitle, DialogActions, DialogContent, Accordion, AccordionDetails, AccordionSummary, Divider, ListItemIcon } from "@mui/material";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
 import ListItemModal from "../components/ListItemModal";
 import { NumericFormat } from "react-number-format";
 import { styled } from "@mui/system";
-import { Close as CloseIcon, MoreHoriz, ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
+import { Close as CloseIcon, MoreHoriz, ExpandMore as ExpandMoreIcon, Close, Delete, Edit } from "@mui/icons-material";
 import Header from "../components/Header";
 import ListItemCheckbox from "../components/ListItemCheckbox";
 
 const ListDetail: React.FC = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [menuDrawerOpen, setMenuDrawerOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<IListItem | null>(null);
     const [selectedListItemId, setSelectedListItemId] = useState<number | undefined>();
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 
     const { id } = useParams();
@@ -45,16 +45,11 @@ const ListDetail: React.FC = () => {
     });
 
     /* Settings Menu Handlers */
-    const handleMenuClick = (event: React.MouseEvent<HTMLElement>, listItemId: number | undefined) => {
+    const handleMoreButton = (event: React.MouseEvent<HTMLElement>, listItemId: number | undefined) => {
         event.stopPropagation();
-        setAnchorEl(event.currentTarget);
+        setMenuDrawerOpen(true);
         setSelectedListItemId(listItemId);
       };      
-    
-      const handleMenuClose = (event: React.MouseEvent<HTMLElement>) => {
-        event.stopPropagation();
-        setAnchorEl(null);
-      };
 
     /* List Item Handlers */
     const handleListItemClick = (item: IListItem) => {
@@ -70,14 +65,14 @@ const ListDetail: React.FC = () => {
     /* Edit Handlers */
     const handleEditMenuOption = (event: React.MouseEvent<HTMLElement>) => {
         event.stopPropagation();
-        handleMenuClose(event);
+        setMenuDrawerOpen(false);
         handleOpenListItemModal();
     };
 
     /* Delete Handlers */
       const handleDeleteMenuOption = (event: React.MouseEvent<HTMLElement>) => {
           event.stopPropagation();
-          handleMenuClose(event);
+          setMenuDrawerOpen(false);
           setOpenDeleteDialog(true);
       }
     
@@ -152,25 +147,9 @@ const ListDetail: React.FC = () => {
                                         primaryTypographyProps={{ variant: 'h6' }}
                                         secondaryTypographyProps={{ variant: 'body2', color: 'textSecondary' }}
                                     />
-                                    <IconButton onClick={(e) => handleMenuClick(e, listItem.id)}>
+                                    <IconButton onClick={(e) => handleMoreButton(e, listItem.id)}>
                                         <MoreHoriz />
-                                    </IconButton>
-                                    <Menu
-                                        anchorEl={anchorEl}
-                                        open={Boolean(anchorEl)}
-                                        onClose={handleMenuClose}
-                                    >
-                                        <MenuItem 
-                                            onClick={(e) => handleEditMenuOption(e)}
-                                        >
-                                            Edit
-                                        </MenuItem>
-                                        <MenuItem 
-                                            onClick={(e) => handleDeleteMenuOption(e)}
-                                        >
-                                            Delete
-                                        </MenuItem>
-                                    </Menu>
+                                    </IconButton>                                    
                                 </ListItem>
                             ))}
                         </List>
@@ -273,6 +252,48 @@ const ListDetail: React.FC = () => {
                         </>
                     )}
                 </Box>
+            </Drawer>
+
+            <Drawer
+                anchor="bottom"
+                open={menuDrawerOpen}
+                onClose={() => setMenuDrawerOpen(false)}
+                sx={{
+                width: 'auto',
+                flexShrink: 0,
+                '& .MuiDrawer-paper': {
+                    width: '100%',
+                    height: 'auto',
+                    borderRadius: '20px 20px 0 0',
+                    padding: '20px',
+                    boxSizing: 'border-box',
+                },
+                }}
+            >
+                <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    Manage List Item
+                </Typography>
+                <IconButton sx={{ padding: 0 }} onClick={() => setMenuDrawerOpen(false)}>
+                    <Close />
+                </IconButton>
+                </Box>
+
+                <List>
+                <ListItem onClick={(e) => handleEditMenuOption(e)}>
+                    <ListItemIcon>
+                    <Edit/>
+                    </ListItemIcon>
+                    <ListItemText primary="Edit" />
+                </ListItem>
+                <Divider />
+                <ListItem onClick={(e) => handleDeleteMenuOption(e)}>
+                    <ListItemIcon>
+                    <Delete/>
+                    </ListItemIcon>
+                    <ListItemText primary="Delete" />
+                </ListItem>
+                </List>
             </Drawer>
 
             <Dialog

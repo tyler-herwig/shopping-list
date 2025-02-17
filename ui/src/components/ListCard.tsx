@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Card, Typography, Box, IconButton, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+import { Card, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Button, Divider, Dialog, DialogActions, DialogContent, DialogTitle, ListItemIcon } from "@mui/material";
 import { styled } from "@mui/system";
-import { MoreHoriz } from "@mui/icons-material";
+import { MoreHoriz, Edit, Delete, Close } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteList } from "../api/lists";
@@ -15,57 +15,51 @@ interface ListCardProps {
 }
 
 const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, handleEditClick }) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const {mutate, isError } = useMutation({
-      mutationFn: deleteList,
-      onSuccess: () => {
-          queryClient.invalidateQueries({queryKey: ['lists'] });
-          setOpenDeleteDialog(false);
-      }
-  })
-
-  /* Settings Menu Handlers */
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation();
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation();
-    setAnchorEl(null);
-  };
+  const { mutate, isError } = useMutation({
+    mutationFn: deleteList,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lists'] });
+      setOpenDeleteDialog(false);
+    },
+  });
 
   /* Card Handlers */
   const handleCardClick = () => {
-    navigate(`/dashboard/lists/${id}`); 
+    navigate(`/dashboard/lists/${id}`);
   };
+
+  const handleMoreButton = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setDrawerOpen(true);
+  }
 
   /* Edit Handlers */
   const handleEditMenuOption = (id: number | undefined, event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
-    handleMenuClose(event);
+    setDrawerOpen(false);
     handleEditClick(id);
-  }
+  };
 
   /* Delete Handlers */
   const handleDeleteMenuOption = (event: React.MouseEvent<HTMLElement>) => {
-      event.stopPropagation();
-      handleMenuClose(event);
-      setOpenDeleteDialog(true);
-  }
+    event.stopPropagation();
+    setDrawerOpen(false);
+    setOpenDeleteDialog(true);
+  };
 
   const handleDeleteDialogClose = () => {
     setOpenDeleteDialog(false);
-  }
+  };
 
   const handleDelete = () => {
     mutate(id);
-  }
+  };
 
   return (
     <>
@@ -91,7 +85,7 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, hand
             justifyContent: "center",
           }}
         >
-          <IconButton sx={{ color: "white" }} onClick={handleMenuClick}>
+          <IconButton sx={{ color: "white" }} onClick={(e) => handleMoreButton(e)}>
             <MoreHoriz />
           </IconButton>
         </Box>
@@ -100,43 +94,62 @@ const ListCard: React.FC<ListCardProps> = ({ id, title, description, count, hand
             {count}
           </Typography>
         </Box>
-
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          <MenuItem 
-            onClick={(e) => { handleEditMenuOption(id, e)} }
-          >
-            Edit
-          </MenuItem>
-          <MenuItem 
-            onClick={handleDeleteMenuOption}
-          >
-            Delete
-          </MenuItem>
-        </Menu>
       </StyledCard>
 
-      <Dialog
-        open={openDeleteDialog}
-        onClose={handleDeleteDialogClose}
+      <Drawer
+        anchor="bottom"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        sx={{
+          width: 'auto',
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: '100%',
+            height: 'auto',
+            borderRadius: '20px 20px 0 0',
+            padding: '20px',
+            boxSizing: 'border-box',
+          },
+        }}
       >
-        <DialogTitle>
-          {"Delete List"}
-        </DialogTitle>
+        <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+            Manage List
+          </Typography>
+          <IconButton sx={{ padding: 0 }} onClick={() => setDrawerOpen(false)}>
+            <Close />
+          </IconButton>
+        </Box>
+
+        <List>
+          <ListItem onClick={(e) => handleEditMenuOption(id, e)}>
+            <ListItemIcon>
+              <Edit/>
+            </ListItemIcon>
+            <ListItemText primary="Edit" />
+          </ListItem>
+          <Divider />
+          <ListItem onClick={handleDeleteMenuOption}>
+            <ListItemIcon>
+              <Delete/>
+            </ListItemIcon>
+            <ListItemText primary="Delete" />
+          </ListItem>
+        </List>
+      </Drawer>
+
+      {/* Delete Dialog */}
+      <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
+        <DialogTitle>{"Delete List"}</DialogTitle>
         <DialogContent>
-          Are you sure you want to delete <Typography sx={{fontWeight: 'bold', display: 'inline'}}>{title}</Typography>?
+          Are you sure you want to delete <Typography sx={{ fontWeight: 'bold', display: 'inline' }}>{title}</Typography>?
           {isError && <Typography color="error">Error deleting list!</Typography>}
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleDeleteDialogClose}>
             Cancel
           </Button>
-          <Button onClick={handleDelete}>
-            Delete
-          </Button>
+          <Button onClick={handleDelete}>Delete</Button>
         </DialogActions>
       </Dialog>
     </>
