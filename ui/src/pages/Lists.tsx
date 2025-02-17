@@ -90,7 +90,7 @@ const Lists: React.FC = () => {
                 sx={{ mb: 15}}
             >
                 <TextField 
-                    label="Search lists..." 
+                    label="Search lists" 
                     variant="outlined" 
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px'}, mb: 3, width: '100%' }}
                     onChange={handleSearchChange}
