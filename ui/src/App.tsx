@@ -9,6 +9,8 @@ import './utils/axiosConfig';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import BottomNavbar from './components/BottomNavbar';
 import { BottomNavbarProvider } from './context/BottomNavbarContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import RedirectIfAuthenticated from './components/RedirectIfAuthenticated';
 
 const queryClient = new QueryClient();
 
@@ -28,10 +30,38 @@ const App: React.FC = () => {
               <CssBaseline />
               <BottomNavbar/>
               <Routes>
-                <Route path="/" element={<Login />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/dashboard" element={<Lists />} />
-                <Route path="/dashboard/lists/:id" element={<ListDetail/>} />
+                <Route 
+                  path="/" 
+                  element={
+                    <RedirectIfAuthenticated>
+                      <Login />
+                    </RedirectIfAuthenticated>
+                  } 
+                />
+                <Route 
+                  path="/login" 
+                  element={
+                    <RedirectIfAuthenticated>
+                      <Login />
+                    </RedirectIfAuthenticated>
+                  }
+                />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <Lists />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/dashboard/lists/:id" 
+                  element={
+                    <ProtectedRoute>
+                      <ListDetail />
+                    </ProtectedRoute>
+                  } 
+                />
               </Routes>
             </Router>
           </BottomNavbarProvider>

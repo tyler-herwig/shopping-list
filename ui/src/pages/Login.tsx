@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Button, Typography, TextField, Box, styled, Card, CardContent, CircularProgress } from '@mui/material';
+import React from 'react';
+import { Button, Typography, TextField, Box, styled, Card, CardContent } from '@mui/material';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
@@ -16,19 +16,10 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const { setUserData } = useUserContext();
 
-  const token = localStorage.getItem('authToken');
-
   const validationSchema = Yup.object({
     username: Yup.string().required('Username is required'),
     password: Yup.string().required('Password is required'),
   });
-
-  useEffect(() => {
-    if (token) {
-      navigate('/dashboard');
-      return;
-    }
-  }, [])
 
   const handleLogin = async (values: { username: string; password: string }) => {
     try {
@@ -46,10 +37,6 @@ const Login: React.FC = () => {
       // Handle error if login fails
     }
   };
-
-  if (token) {
-    return <CircularProgress />
-  }
 
   return (
     <StyledContainer>
