@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Card, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Button, Divider, Dialog, DialogActions, DialogContent, DialogTitle, ListItemIcon, LinearProgress } from "@mui/material";
+import { Card, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Button, Divider, Dialog, DialogActions, DialogContent, DialogTitle, ListItemIcon } from "@mui/material";
 import { styled } from "@mui/system";
 import { MoreHoriz, Edit, Delete, Close } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteList } from "../api/lists";
 import { IList } from "../models/lists";
+import ListItemProgressBar from "./ListItemProgressBar";
 
 interface ListCardProps {
   list: IList;
@@ -59,9 +60,6 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick }) => {
     mutate(list.id);
   };
 
-  // Calculate the percentage
-  const completionPercentage = list.listItemCount ? ((list.completedListItemCount || 0) / list.listItemCount) * 100 : 0;
-
   return (
     <>
       <StyledCard onClick={handleCardClick}>
@@ -91,16 +89,10 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick }) => {
           </IconButton>
         </Box>
 
-        <Box sx={{ width: "100%", marginTop: 2 }}>
-          <LinearProgress
-            variant="determinate"
-            value={completionPercentage}
-            sx={{ height: 6, borderRadius: 2 }}
-          />
-          <Typography variant="body2" sx={{ textAlign: "right", marginTop: 1 }}>
-            {list.completedListItemCount}/{list.listItemCount}
-          </Typography>
-        </Box>
+        <ListItemProgressBar
+          completedItems={list.completedListItemCount}
+          totalItems={list.listItemCount}
+        />
       </StyledCard>
 
       <Drawer

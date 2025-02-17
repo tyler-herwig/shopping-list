@@ -11,6 +11,7 @@ import { styled } from "@mui/system";
 import { Close as CloseIcon, MoreHoriz, ExpandMore as ExpandMoreIcon, Close, Delete, Edit } from "@mui/icons-material";
 import Header from "../components/Header";
 import ListItemCheckbox from "../components/ListItemCheckbox";
+import ListItemProgressBar from "../components/ListItemProgressBar";
 
 const ListDetail: React.FC = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -84,6 +85,8 @@ const ListDetail: React.FC = () => {
         mutate(listItemId);
       }
 
+    const totalItems = (listItems?.listItems?.active?.length || 0) + (listItems?.listItems?.completed?.length || 0);
+
     if (isLoadingList || isLoadingListItems) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="60vh">
@@ -107,6 +110,10 @@ const ListDetail: React.FC = () => {
                     subheaderTypographyProps={{ variant: 'body2', color: "rgba(255, 255, 255, 0.7)" }}
                 />
                 <CardContent>
+                    <ListItemProgressBar
+                        completedItems={listItems?.listItems.completed.length}
+                        totalItems={totalItems}
+                    />
                     {!!listItems?.totalCost && (
                         <Box sx={{ textAlign: "center" }}>
                             <Typography variant="h6" sx={{ display: "inline", mr: 0.7 }}>
