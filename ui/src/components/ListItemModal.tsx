@@ -1,15 +1,17 @@
 import { 
     Button, Typography, TextField, Dialog, DialogContent, DialogActions, 
     Select, MenuItem, FormControl, InputLabel, InputAdornment, IconButton, 
-    Box, styled 
+    Box, styled, 
+    CircularProgress
 } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createNewListItem, updateListItem, fetchListItemById } from '../api/lists';
 import { Formik, Form, Field, FieldProps } from 'formik';
 import * as Yup from 'yup';
 import { NumericFormat } from 'react-number-format';
+import useErrorHandling from '../hooks/useErrorHandling';
 
 interface ListItemModalProps {
     listId: number | undefined;
@@ -18,31 +20,41 @@ interface ListItemModalProps {
     listItemId?: number | undefined;
 }
 
-const categories = ['Groceries', 'Electronics', 'Clothing', 'Books', 'Household']; // Sample categories
+const categories = ['Groceries', 'Electronics', 'Clothing', 'Books', 'Household'];
 
 const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose, listItemId }) => {
     const queryClient = useQueryClient();
+    const { errorMessage, handleError, clearError } = useErrorHandling();
 
-    // Fetch the list item data if we are in edit mode
     const { data: listItemData, isLoading } = useQuery({
         queryKey: ['listItem', listItemId],
         queryFn: () => listItemId ? fetchListItemById(listItemId) : null,
-        enabled: !!listItemId, // Only fetch if listItemId exists
+        enabled: !!listItemId
     });
 
-    const { mutate: createItem, isError: createError } = useMutation({
+    useEffect(() => {
+        clearError();
+    }, [open]);
+
+    const createMutation = useMutation({
         mutationFn: createNewListItem,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['listItems'] });
             handleClose();
+        },
+        onError: (error) => {
+            handleError(error);
         }
     });
 
-    const { mutate: updateItem, isError: updateError } = useMutation({
+    const updateMutation = useMutation({
         mutationFn: (updatedItem: any) => updateListItem(listItemId!, updatedItem),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['listItems'] });
             handleClose();
+        },
+        onError: (error) => {
+            handleError(error);
         }
     });
 
@@ -53,10 +65,6 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
         description: Yup.string()
             .max(500, 'Description must be less than 500 characters')
     });
-
-    if (isLoading) {
-        return <Typography>Loading...</Typography>;
-    }
 
     return (
         <Dialog open={open} onClose={handleClose} fullScreen={true}>
@@ -71,126 +79,127 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                 </div>
             </StyledBox>
             <DialogContent>
-                <Formik
-                    initialValues={{
-                        listId: listId || null,
-                        name: listItemData?.name || '',
-                        description: listItemData?.description || '',
-                        category: listItemData?.category || '',
-                        cost: listItemData?.cost || null,
-                    }}
-                    validationSchema={validationSchema}
-                    enableReinitialize
-                    onSubmit={(values, { resetForm }) => {
-                        const sanitizedValues = {
-                            ...values,
-                            cost: parseFloat(String(values.cost).replace(/,/g, '')),
-                        };
+                {isLoading ? (
+                  <CircularProgress />  
+                ) : (
+                    <Formik
+                        initialValues={{
+                            listId: listId || null,
+                            name: listItemData?.name || '',
+                            description: listItemData?.description || '',
+                            category: listItemData?.category || '',
+                            cost: listItemData?.cost || null,
+                        }}
+                        validationSchema={validationSchema}
+                        enableReinitialize
+                        onSubmit={(values, { resetForm }) => {
+                            const sanitizedValues = {
+                                ...values,
+                                cost: parseFloat(String(values.cost).replace(/,/g, '')),
+                            };
 
-                        if (listItemId) {
-                            updateItem(sanitizedValues);
-                        } else {
-                            createItem(sanitizedValues);
-                        }
+                            if (listItemId) {
+                                updateMutation.mutate(sanitizedValues);
+                            } else {
+                                createMutation.mutate(sanitizedValues);
+                            }
 
-                        resetForm();
-                    }}
-                >
-                    {({ errors, touched, handleChange, handleBlur, values, isValid, dirty }) => (
-                        <Form>
-                            <Field
-                                as={TextField}
-                                fullWidth
-                                label="Name"
-                                name="name"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                margin="normal"
-                                variant="outlined"
-                                error={touched.name && Boolean(errors.name)}
-                                helperText={touched.name && errors.name}
-                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
-                            />
-                            <Field
-                                as={TextField}
-                                fullWidth
-                                label="Description"
-                                name="description"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                margin="normal"
-                                variant="outlined"
-                                multiline
-                                rows={4}
-                                error={touched.description && Boolean(errors.description)}
-                                helperText={touched.description && errors.description}
-                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
-                            />
-
-                            {/* Category Dropdown */}
-                            <FormControl fullWidth margin="normal" variant="outlined">
-                                <InputLabel>Category</InputLabel>
+                            resetForm();
+                        }}
+                    >
+                        {({ errors, touched, handleChange, handleBlur, values, isValid, dirty }) => (
+                            <Form>
                                 <Field
-                                    as={Select}
-                                    name="category"
-                                    label="Category"
+                                    as={TextField}
+                                    fullWidth
+                                    label="Name"
+                                    name="name"
                                     onChange={handleChange}
                                     onBlur={handleBlur}
-                                    value={values.category}
-                                    sx={{ borderRadius: '15px' }}
-                                >
-                                    <MenuItem value=""><em>None</em></MenuItem>
-                                    {categories.map((category) => (
-                                        <MenuItem key={category} value={category}>
-                                            {category}
-                                        </MenuItem>
-                                    ))}
+                                    margin="normal"
+                                    variant="outlined"
+                                    error={touched.name && Boolean(errors.name)}
+                                    helperText={touched.name && errors.name}
+                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
+                                />
+                                <Field
+                                    as={TextField}
+                                    fullWidth
+                                    label="Description"
+                                    name="description"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    margin="normal"
+                                    variant="outlined"
+                                    multiline
+                                    rows={4}
+                                    error={touched.description && Boolean(errors.description)}
+                                    helperText={touched.description && errors.description}
+                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
+                                />
+
+                                {/* Category Dropdown */}
+                                <FormControl fullWidth margin="normal" variant="outlined">
+                                    <InputLabel>Category</InputLabel>
+                                    <Field
+                                        as={Select}
+                                        name="category"
+                                        label="Category"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.category}
+                                        sx={{ borderRadius: '15px' }}
+                                    >
+                                        <MenuItem value=""><em>None</em></MenuItem>
+                                        {categories.map((category) => (
+                                            <MenuItem key={category} value={category}>
+                                                {category}
+                                            </MenuItem>
+                                        ))}
+                                    </Field>
+                                    {touched.category && errors.category && (
+                                        <Typography color="error" variant="caption">{errors.category}</Typography>
+                                    )}
+                                </FormControl>
+
+                                {/* Cost Input */}
+                                <Field name="cost">
+                                    {({ field, form }: FieldProps) => (
+                                        <NumericFormat
+                                            {...field}
+                                            customInput={TextField}
+                                            fullWidth
+                                            label="Cost"
+                                            margin="normal"
+                                            variant="outlined"
+                                            thousandSeparator=","
+                                            decimalScale={2}
+                                            fixedDecimalScale
+                                            allowNegative={false}
+                                            InputProps={{
+                                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                            }}
+                                            error={Boolean(form.touched.cost && form.errors.cost)}
+                                            helperText={form.touched.cost && typeof form.errors.cost === "string" ? form.errors.cost : ""}
+                                            sx={{ "& .MuiOutlinedInput-root": { borderRadius: "15px" } }}
+                                        />
+                                    )}
                                 </Field>
-                                {touched.category && errors.category && (
-                                    <Typography color="error" variant="caption">{errors.category}</Typography>
-                                )}
-                            </FormControl>
-
-                            {/* Cost Input */}
-                            <Field name="cost">
-                                {({ field, form }: FieldProps) => (
-                                    <NumericFormat
-                                        {...field}
-                                        customInput={TextField}
-                                        fullWidth
-                                        label="Cost"
-                                        margin="normal"
-                                        variant="outlined"
-                                        thousandSeparator=","
-                                        decimalScale={2}
-                                        fixedDecimalScale
-                                        allowNegative={false}
-                                        InputProps={{
-                                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                        }}
-                                        error={Boolean(form.touched.cost && form.errors.cost)}
-                                        helperText={form.touched.cost && typeof form.errors.cost === "string" ? form.errors.cost : ""}
-                                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "15px" } }}
-                                    />
-                                )}
-                            </Field>
-
-                            {(createError || updateError) && (
-                                <Typography color="error">Error processing request!</Typography>
-                            )}
-                            <DialogActions>
-                                <Button 
-                                    type="submit" 
-                                    color="primary" 
-                                    disabled={!isValid || !dirty}
-                                    sx={{ position: "fixed", top: 18, right: 18, color: 'white' }}
-                                >
-                                    {listItemId ? "Update" : "Save"}
-                                </Button>
-                            </DialogActions>
-                        </Form>
-                    )}
-                </Formik>
+                                {errorMessage && <Typography color="error">{errorMessage}</Typography>}
+                                <DialogActions>
+                                    <Button 
+                                        type="submit" 
+                                        color="primary" 
+                                        disabled={!isValid || !dirty}
+                                        sx={{ position: "fixed", top: 18, right: 18, color: 'white' }}
+                                    >
+                                        {listItemId ? "Update" : "Save"}
+                                    </Button>
+                                </DialogActions>
+                            </Form>
+                        )}
+                    </Formik>
+                )}
             </DialogContent>
         </Dialog>
     );
