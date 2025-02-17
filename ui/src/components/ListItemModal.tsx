@@ -12,6 +12,7 @@ import { Formik, Form, Field, FieldProps } from 'formik';
 import * as Yup from 'yup';
 import { NumericFormat } from 'react-number-format';
 import useErrorHandling from '../hooks/useErrorHandling';
+import { IListItem } from '../models/lists';
 
 interface ListItemModalProps {
     listId: number | undefined;
@@ -48,7 +49,7 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
     });
 
     const updateMutation = useMutation({
-        mutationFn: (updatedItem: any) => updateListItem(listItemId!, updatedItem),
+        mutationFn: (updatedItem: IListItem) => updateListItem(listItemId!, updatedItem),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['listItems'] });
             handleClose();

@@ -12,10 +12,31 @@ exports.createListItem = async (req, res) => {
 
 exports.getListItems = async (req, res) => {
     try {
-        const listItems = await ListItem.findAll({ where: { listId: req.query.listId } });
-        const totalCost = await ListItem.sum('cost', { where: { listId: req.query.listId } });
+        const activeItems = await ListItem.findAll({
+            where: {
+                listId: req.query.listId,
+                purchased: false
+            }
+        });
 
-        res.json({ listItems, totalCost: totalCost || 0 });
+        const completedItems = await ListItem.findAll({
+            where: {
+                listId: req.query.listId,
+                purchased: true
+            }
+        });
+
+        const totalCost = await ListItem.sum('cost', {
+            where: { listId: req.query.listId }
+        });
+
+        res.json({
+            listItems: {
+                active: activeItems,
+                completed: completedItems
+            },
+            totalCost: totalCost || 0
+        });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

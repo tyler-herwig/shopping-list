@@ -38,7 +38,7 @@ export const fetchListItemById = async (id: number | undefined): Promise<IListIt
 }
 
 export const fetchListItemsByListId = async (id: number | undefined): Promise<IListItemResponse> => {
-    const response = await axios.get<{ listItems: IListItem[], totalCost: number }>(`/list-items?listId=${id}`);
+    const response = await axios.get<{ listItems: { active: IListItem[], completed: IListItem[] }, totalCost: number }>(`/list-items?listId=${id}`);
 
     return response.data;
 }

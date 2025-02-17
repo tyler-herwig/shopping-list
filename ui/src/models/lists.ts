@@ -15,7 +15,10 @@ export interface IList {
 }
 
 export interface IListItemResponse {
-    listItems: IListItem[],
+    listItems: {
+        active: IListItem[],
+        completed: IListItem[]
+    },
     totalCost: number
 }
 

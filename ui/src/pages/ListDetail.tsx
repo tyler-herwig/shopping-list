@@ -3,13 +3,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { IList, IListItem, IListItemResponse } from "../models/lists";
 import { deleteListItem, fetchListById, fetchListItemsByListId } from "../api/lists";
-import { CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box, Radio, Chip, Drawer, IconButton, Button, Menu, MenuItem, Dialog, DialogTitle, DialogActions, DialogContent } from "@mui/material";
+import { CircularProgress, Container, Typography, Card, CardHeader, CardContent, List, ListItem, ListItemAvatar, ListItemText, Box, Chip, Drawer, IconButton, Button, Menu, MenuItem, Dialog, DialogTitle, DialogActions, DialogContent, Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
 import ListItemModal from "../components/ListItemModal";
 import { NumericFormat } from "react-number-format";
 import { styled } from "@mui/system";
-import { Close as CloseIcon, MoreHoriz } from "@mui/icons-material";
+import { Close as CloseIcon, MoreHoriz, ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import Header from "../components/Header";
+import ListItemCheckbox from "../components/ListItemCheckbox";
 
 const ListDetail: React.FC = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -41,7 +42,7 @@ const ListDetail: React.FC = () => {
             queryClient.invalidateQueries({queryKey: ['listItems'] });
             setOpenDeleteDialog(false);
         }
-    })
+    });
 
     /* Settings Menu Handlers */
     const handleMenuClick = (event: React.MouseEvent<HTMLElement>, listItemId: number | undefined) => {
@@ -100,7 +101,7 @@ const ListDetail: React.FC = () => {
         <>
         <Header
             title="You have..."
-            subTitle={`${listItems?.listItems.length} active list items`}
+            subTitle={`${listItems?.listItems.active.length} active list items`}
         />
         <Container maxWidth="lg" sx={{ mt: 2 }}>
             <Card sx={{ boxShadow: 3, borderRadius: 3, mb: 15 }}>
@@ -128,27 +129,21 @@ const ListDetail: React.FC = () => {
                             </Typography>
                         </Box>
                     )}
-                    {listItems?.listItems.length === 0 ? (
+                    {listItems?.listItems.active.length === 0 ? (
                         <Typography variant="h6" color="textSecondary" align="center">
                             No items found.
                         </Typography>
                     ) : (
                         <List>
-                            {listItems?.listItems.map((listItem) => (
+                            {listItems?.listItems.active.map((listItem) => (
                                 <ListItem
                                     key={listItem.id}
                                     sx={{ borderBottom: "1px solid #ddd", "&:last-child": { borderBottom: "none" } }}
                                     onClick={() => handleListItemClick(listItem)}
                                 >
                                     <ListItemAvatar>
-                                        <Radio
-                                            sx={{
-                                                color: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)",
-                                                "&.Mui-checked": {
-                                                    color: "linear-gradient(135deg, #6a1b9a 30%, #8e24aa 100%)"
-                                                }
-                                            }}
-                                            value={listItem.id}
+                                        <ListItemCheckbox 
+                                            listItem={listItem}
                                         />
                                     </ListItemAvatar>
                                     <ListItemText
@@ -179,6 +174,48 @@ const ListDetail: React.FC = () => {
                                 </ListItem>
                             ))}
                         </List>
+                    )}
+                    {!!listItems?.listItems.completed.length && (
+                        <Accordion
+                            sx={{
+                                boxShadow: "none",
+                                border: "none",
+                                "&:before": {
+                                    display: "none", 
+                                },
+                            }}
+                        >
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="completed-items-accordion"
+                                id="completed-items-accordion"
+                            >
+                                <Typography component="span">({listItems?.listItems.completed.length}) Completed Items</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <List>
+                                    {listItems?.listItems.completed.map((listItem) => (
+                                        <ListItem
+                                            key={listItem.id}
+                                            sx={{ borderBottom: "1px solid #ddd", "&:last-child": { borderBottom: "none" } }}
+                                            onClick={() => handleListItemClick(listItem)}
+                                        >
+                                            <ListItemAvatar>
+                                                <ListItemCheckbox 
+                                                    listItem={listItem}
+                                                />
+                                            </ListItemAvatar>
+                                            <ListItemText
+                                                primary={listItem.name}
+                                                secondary={listItem.description}
+                                                primaryTypographyProps={{ variant: 'h6' }}
+                                                secondaryTypographyProps={{ variant: 'body2', color: 'textSecondary' }}
+                                            />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </AccordionDetails>
+                        </Accordion>
                     )}
                 </CardContent>
             </Card>
