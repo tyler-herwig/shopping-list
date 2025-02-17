@@ -4,10 +4,10 @@ import { useUserContext } from "../context/UserContext";
 import { fetchListsByUserId } from "../api/lists";
 import { IListResponse } from "../models/lists";
 import { Container, CircularProgress, Grid, Box } from "@mui/material";
-import ListCard from "./ListCard";
-import ListModal from "./ListModal";
+import ListCard from "../components/ListCard";
+import ListModal from "../components/ListModal";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
-import Header from "./Header";
+import Header from "../components/Header";
 
 const Lists: React.FC = () => {
     const { user } = useUserContext();
