@@ -60,10 +60,6 @@ exports.getLists = async (req, res) => {
             group: ['List.id']
         });
 
-        if (!lists || lists.length === 0) {
-            return res.sendStatus(404);
-        }
-
         res.json({
             lists,
             total,
