@@ -13,7 +13,9 @@ exports.createListItem = async (req, res) => {
 exports.getListItems = async (req, res) => {
     try {
         const listItems = await ListItem.findAll({ where: { listId: req.query.listId } });
-        res.json({ listItems });
+        const totalCost = await ListItem.sum('cost', { where: { listId: req.query.listId } });
+
+        res.json({ listItems, totalCost: totalCost || 0 });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
