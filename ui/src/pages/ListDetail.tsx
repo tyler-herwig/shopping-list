@@ -44,10 +44,11 @@ const ListDetail: React.FC = () => {
     })
 
     /* Settings Menu Handlers */
-      const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    const handleMenuClick = (event: React.MouseEvent<HTMLElement>, listItemId: number | undefined) => {
         event.stopPropagation();
         setAnchorEl(event.currentTarget);
-      };
+        setSelectedListItemId(listItemId);
+      };      
     
       const handleMenuClose = (event: React.MouseEvent<HTMLElement>) => {
         event.stopPropagation();
@@ -66,18 +67,16 @@ const ListDetail: React.FC = () => {
     };
 
     /* Edit Handlers */
-    const handleEditMenuOption = (listItemId: number | undefined, event: React.MouseEvent<HTMLElement>) => {
+    const handleEditMenuOption = (event: React.MouseEvent<HTMLElement>) => {
         event.stopPropagation();
         handleMenuClose(event);
-        setSelectedListItemId(listItemId);
         handleOpenListItemModal();
     };
 
     /* Delete Handlers */
-      const handleDeleteMenuOption = (listItemId: number | undefined, event: React.MouseEvent<HTMLElement>) => {
+      const handleDeleteMenuOption = (event: React.MouseEvent<HTMLElement>) => {
           event.stopPropagation();
           handleMenuClose(event);
-          setSelectedListItemId(listItemId);
           setOpenDeleteDialog(true);
       }
     
@@ -158,21 +157,21 @@ const ListDetail: React.FC = () => {
                                         primaryTypographyProps={{ variant: 'h6' }}
                                         secondaryTypographyProps={{ variant: 'body2', color: 'textSecondary' }}
                                     />
-                                    <IconButton onClick={handleMenuClick}>
+                                    <IconButton onClick={(e) => handleMenuClick(e, listItem.id)}>
                                         <MoreHoriz />
                                     </IconButton>
                                     <Menu
                                         anchorEl={anchorEl}
                                         open={Boolean(anchorEl)}
                                         onClose={handleMenuClose}
-                                        >
+                                    >
                                         <MenuItem 
-                                            onClick={(e) => { handleEditMenuOption(listItem.id, e)} }
+                                            onClick={(e) => handleEditMenuOption(e)}
                                         >
                                             Edit
                                         </MenuItem>
                                         <MenuItem 
-                                            onClick={(e) => { handleDeleteMenuOption(listItem.id, e)} }
+                                            onClick={(e) => handleDeleteMenuOption(e)}
                                         >
                                             Delete
                                         </MenuItem>
