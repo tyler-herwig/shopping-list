@@ -1,23 +1,32 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useUserContext } from "../context/UserContext";
 import { fetchListsByUserId } from "../api/lists";
 import { IListResponse } from "../models/lists";
-import { Container, CircularProgress, Grid, Box } from "@mui/material";
+import { Container, CircularProgress, Grid, Box, TextField, InputAdornment, IconButton } from "@mui/material";
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear'; 
 import ListCard from "../components/ListCard";
 import ListModal from "../components/ListModal";
 import { useBottomNavbar } from "../context/BottomNavbarContext";
 import Header from "../components/Header";
+import { debounce } from 'lodash';
 
 const Lists: React.FC = () => {
     const { user } = useUserContext();
     const { openListModal, handleOpenListModal, handleCloseModal } = useBottomNavbar();
     const [selectedListId, setSelectedListId] = useState<number | undefined>();
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [internalSearchTerm, setInternalSearchTerm] = useState<string>('');
 
     const handleEditClick = (listId: number | undefined) => {
         setSelectedListId(listId);
         handleOpenListModal();
     };
+
+    const debouncedSearchTerm = useMemo(() => debounce((term: string) => {
+        setSearchTerm(term);
+    }, 1000), []);
 
     const {
         data,
@@ -26,8 +35,8 @@ const Lists: React.FC = () => {
         hasNextPage,
         fetchNextPage,
     } = useInfiniteQuery<IListResponse>({
-        queryKey: ["lists", user?.userId],
-        queryFn: ({ pageParam = 1 }) => fetchListsByUserId(user?.userId, pageParam, 10),
+        queryKey: ["lists", user?.userId, searchTerm],
+        queryFn: ({ pageParam = 1 }) => fetchListsByUserId(user?.userId, searchTerm, pageParam, 10),
         getNextPageParam: (lastPage) => {
             // Determine if there are more pages based on the response
             return lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined;
@@ -46,6 +55,17 @@ const Lists: React.FC = () => {
         },
         [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]
     );    
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setInternalSearchTerm(value);
+        debouncedSearchTerm(value);
+    };
+
+    const handleClearSearch =() => {
+        setInternalSearchTerm('');
+        setSearchTerm('');
+    }
 
     if (isLoading) {
         return (
@@ -69,6 +89,29 @@ const Lists: React.FC = () => {
                 maxWidth="lg"
                 sx={{ mb: 15}}
             >
+                <TextField 
+                    label="Search lists..." 
+                    variant="outlined" 
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px'}, mb: 3, width: '100%' }}
+                    onChange={handleSearchChange}
+                    value={internalSearchTerm}
+                    slotProps={{
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <SearchIcon />
+                            </InputAdornment>
+                          ),
+                          endAdornment: internalSearchTerm && (
+                            <InputAdornment position="end">
+                              <IconButton onClick={handleClearSearch} edge="end">
+                                <ClearIcon />
+                              </IconButton>
+                            </InputAdornment>
+                          )
+                        },
+                      }}
+                />
                 <Grid container spacing={3}>
                     {data?.pages.map((page) =>
                         page.lists.map((list) => (

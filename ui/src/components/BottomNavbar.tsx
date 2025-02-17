@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { BottomNavigation, BottomNavigationAction } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
-import Search from '@mui/icons-material/Search';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useBottomNavbar } from '../context/BottomNavbarContext';
 import { styled } from '@mui/system';
 
@@ -29,7 +29,7 @@ const BottomNavbar: React.FC = () => {
   };
 
   const handleSearchButton = () => {
-    alert('Search button clicked!');
+    alert('Settings button clicked!');
   };
 
   return (
@@ -44,7 +44,7 @@ const BottomNavbar: React.FC = () => {
         onClick={handleAddButton}
       />
       <StyledBottomNavigationAction
-        icon={<Search />}
+        icon={<SettingsIcon />}
         onClick={handleSearchButton}
       />
     </StyledBottomNavbar>

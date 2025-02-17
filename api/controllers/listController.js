@@ -36,8 +36,10 @@ exports.createList = async (req, res) => {
     }
 };
 
+const { Op } = require("sequelize");
+
 exports.getLists = async (req, res) => {
-    const { userId } = req.query;
+    const { userId, search } = req.query;
     let { page, limit } = req.query;
 
     page = parseInt(page) || 1;
@@ -45,12 +47,19 @@ exports.getLists = async (req, res) => {
     const offset = (page - 1) * limit;
 
     try {
-        const total = await List.count({
-            where: { userId }
-        });
+        const whereClause = { userId };
+
+        if (search) {
+            whereClause[Op.or] = [
+                { name: { [Op.like]: `%${search}%` } },
+                { description: { [Op.like]: `%${search}%` } }
+            ];
+        }
+
+        const total = await List.count({ where: whereClause });
 
         const lists = await List.findAll({
-            where: { userId },
+            where: whereClause,
             attributes: [
                 'id', 'name', 'description', 'userId',
                 [sequelize.literal(`(SELECT COUNT(*) FROM listitems WHERE listitems.listId = List.id)`), 'listItemCount']

@@ -1,8 +1,8 @@
 import axios from '../utils/axiosConfig';
 import { IList, IListItem, IListItemResponse, IListResponse } from '../models/lists';
 
-export const fetchListsByUserId = async (userId: string | undefined, page: number | unknown = 1, limit: number = 10): Promise<IListResponse> => {
-    const response = await axios.get<{ lists: IList[], total: number, totalPages: number, currentPage: number }>(`/lists?userId=${userId}&page=${page}&limit=${limit}`);
+export const fetchListsByUserId = async (userId: string | undefined, searchTerm: string, page: number | unknown = 1, limit: number = 10): Promise<IListResponse> => {
+    const response = await axios.get<{ lists: IList[], total: number, totalPages: number, currentPage: number }>(`/lists?userId=${userId}&search=${searchTerm}&page=${page}&limit=${limit}`);
 
     return response.data;
 }
