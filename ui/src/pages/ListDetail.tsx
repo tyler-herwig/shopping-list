@@ -208,8 +208,8 @@ const ListDetail: React.FC = () => {
                                             <ListItemText
                                                 primary={listItem.name}
                                                 secondary={listItem.description}
-                                                primaryTypographyProps={{ variant: 'h6' }}
-                                                secondaryTypographyProps={{ variant: 'body2', color: 'textSecondary' }}
+                                                primaryTypographyProps={{ variant: 'h6', sx: { textDecoration: 'line-through' } }}
+                                                secondaryTypographyProps={{ variant: 'body2', color: 'textSecondary', sx: { textDecoration: 'line-through' } }}
                                             />
                                         </ListItem>
                                     ))}
