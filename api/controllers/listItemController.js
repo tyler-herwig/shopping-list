@@ -2,8 +2,8 @@ const { ListItem } = require('../models');
 
 exports.createListItem = async (req, res) => {
     try {
-        const listItem = await ListItem.create(req.body);
-        res.json({ message: "List item created successfully!", listItem });
+        const list_item = await ListItem.create(req.body);
+        res.json({ message: "List item created successfully!", list_item });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
@@ -14,28 +14,28 @@ exports.getListItems = async (req, res) => {
     try {
         const activeItems = await ListItem.findAll({
             where: {
-                listId: req.query.listId,
+                list_id: req.query.list_id,
                 purchased: false
             }
         });
 
         const completedItems = await ListItem.findAll({
             where: {
-                listId: req.query.listId,
+                list_id: req.query.list_id,
                 purchased: true
             }
         });
 
         const totalCost = await ListItem.sum('cost', {
-            where: { listId: req.query.listId }
+            where: { list_id: req.query.list_id }
         });
 
         res.json({
-            listItems: {
+            list_items: {
                 active: activeItems,
                 completed: completedItems
             },
-            totalCost: totalCost || 0
+            total_cost: totalCost || 0
         });
     } catch (err) {
         console.error(err);
@@ -45,10 +45,10 @@ exports.getListItems = async (req, res) => {
 
 exports.getListItemById = async (req, res) => {
     try {
-        const listItem = await ListItem.findByPk(req.params.id);
-        if (!listItem) return res.sendStatus(404);
+        const list_item = await ListItem.findByPk(req.params.id);
+        if (!list_item) return res.sendStatus(404);
 
-        res.json({ listItem });
+        res.json({ list_item });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
@@ -57,13 +57,13 @@ exports.getListItemById = async (req, res) => {
 
 exports.updateListItem = async (req, res) => {
     try {
-        const listItem = await ListItem.findByPk(req.params.id);
-        if (!listItem) return res.sendStatus(404);
+        const list_item = await ListItem.findByPk(req.params.id);
+        if (!list_item) return res.sendStatus(404);
 
-        Object.assign(listItem, req.body);
-        await listItem.save();
+        Object.assign(list_item, req.body);
+        await list_item.save();
 
-        res.json({ message: "Item updated successfully!", listItem });
+        res.json({ message: "Item updated successfully!", list_item });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

@@ -20,5 +20,10 @@ app.use('/api', authRoutes);
 app.use('/api/lists', listRoutes);
 app.use('/api/list-items', listItemRoutes);
 
+// Sync Sequelize with PostgreSQL
+sequelize.sync({ alter: true }) // Automatically adjusts tables if needed
+    .then(() => console.log("PostgreSQL Database connected & synced"))
+    .catch(err => console.error("Error connecting to database:", err));
+
 const port = process.env.PORT || 5001;
 app.listen(port, () => console.log(`Server started on port ${port}`));

@@ -3,7 +3,7 @@ const { DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
     const List = sequelize.define('List', {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.INTEGER,  // Works for PostgreSQL with SERIAL behavior for auto-increment
             autoIncrement: true,
             primaryKey: true
         },
@@ -22,19 +22,20 @@ module.exports = (sequelize) => {
                 len: { args: [0, 500], msg: "Description must be less than 500 characters." }
             }
         },
-        userId: {
+        user_id: {
             type: DataTypes.INTEGER,
             allowNull: false
         }
     }, {
+        schema: 'listify',
         tableName: 'lists',
         timestamps: false
     });
     
     List.associate = (models) => {
         List.hasMany(models.ListItem, {
-            foreignKey: 'listId',
-            as: 'listItems',
+            foreignKey: 'list_id',
+            as: 'listitems',
             onDelete: 'CASCADE'
         });
     };

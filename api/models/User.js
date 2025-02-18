@@ -2,33 +2,34 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
     return sequelize.define('User', {
-        userId: {
-            type: DataTypes.INTEGER,
+        user_id: {
+            type: DataTypes.INTEGER,  // This will map to PostgreSQL's SERIAL
             autoIncrement: true,
             primaryKey: true
         },
-        userName: {
-            type: DataTypes.STRING,
+        user_name: {
+            type: DataTypes.STRING(45),  // Define length explicitly for performance
             allowNull: false,
             unique: true
         },
         password: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(100),  // Define length explicitly for performance
             allowNull: false
         },
-        fullName: {
-            type: DataTypes.STRING,
+        full_name: {
+            type: DataTypes.STRING(250),  // Define length explicitly for performance
             allowNull: false
         },
-        firstName: {
-            type: DataTypes.STRING,
+        first_name: {
+            type: DataTypes.STRING(50),  // Define length explicitly for performance
             allowNull: false
         },
-        lastName: {
-            type: DataTypes.STRING,
+        last_name: {
+            type: DataTypes.STRING(200),  // Define length explicitly for performance
             allowNull: false
         }
     }, {
+        schema: 'listify',
         tableName: 'users',
         timestamps: false
     });

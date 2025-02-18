@@ -7,7 +7,7 @@ module.exports = (sequelize) => {
             autoIncrement: true,
             primaryKey: true
         },
-        listId: {
+        list_id: {
             type: DataTypes.INTEGER,
             allowNull: false
         },
@@ -16,7 +16,7 @@ module.exports = (sequelize) => {
             allowNull: false
         },
         description: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING, // Updated from INTEGER to STRING
             allowNull: true
         },
         category: {
@@ -24,22 +24,23 @@ module.exports = (sequelize) => {
             allowNull: true
         },
         cost: {
-            type: DataTypes.DECIMAL(9,2),
+            type: DataTypes.DECIMAL(9, 2),
             allowNull: true
         },
         purchased: {
-            type: DataTypes.BOOLEAN,
+            type: DataTypes.BOOLEAN, // Updated from INTEGER to BOOLEAN
             allowNull: true
         }
     }, {
+        schema: 'listify',
         tableName: 'listitems',
         timestamps: false
     });
 
     ListItem.associate = (models) => {
         ListItem.belongsTo(models.List, {
-            foreignKey: 'listId',
-            as: 'list'
+            foreignKey: 'list_id',
+            as: 'lists'
         });
     };
 

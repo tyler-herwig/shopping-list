@@ -1,9 +1,10 @@
-const { List, sequelize } = require('../models');
+const { List, ListItem } = require('../models');
+const { Op } = require("sequelize");
 
 exports.createList = async (req, res) => {
-    const { name, description, userId } = req.body;
+    const { name, description, user_id } = req.body;
 
-    if (!name || !userId) {
+    if (!name || !user_id) {
         return res.status(400).json({ error: "Name and User ID are required." });
     }
 
@@ -15,7 +16,7 @@ exports.createList = async (req, res) => {
             });
         }
 
-        const list = await List.create({ name, description, userId });
+        const list = await List.create({ name, description, user_id });
         return res.status(201).json({
             message: "List created successfully!",
             list,
@@ -36,10 +37,8 @@ exports.createList = async (req, res) => {
     }
 };
 
-const { Op } = require("sequelize");
-
 exports.getLists = async (req, res) => {
-    const { userId, search } = req.query;
+    const { user_id, search } = req.query;
     let { page, limit } = req.query;
 
     page = parseInt(page) || 1;
@@ -47,12 +46,12 @@ exports.getLists = async (req, res) => {
     const offset = (page - 1) * limit;
 
     try {
-        const whereClause = { userId };
+        const whereClause = { user_id };
 
         if (search) {
             whereClause[Op.or] = [
-                { name: { [Op.like]: `%${search}%` } },
-                { description: { [Op.like]: `%${search}%` } }
+                { name: { [Op.iLike]: `%${search}%` } },
+                { description: { [Op.iLike]: `%${search}%` } }
             ];
         }
 
@@ -61,14 +60,19 @@ exports.getLists = async (req, res) => {
         const lists = await List.findAll({
             where: whereClause,
             attributes: [
-                'id', 'name', 'description', 'userId',
-                [sequelize.literal(`(SELECT COUNT(*) FROM listitems WHERE listitems.listId = List.id)`), 'listItemCount'],
-                [sequelize.literal(`(SELECT COUNT(*) FROM listitems WHERE listitems.listId = List.id AND listitems.purchased = true)`), 'completedListItemCount']
+                'id', 'name', 'description', 'user_id'
             ],
             limit,
-            offset,
-            group: ['List.id']
+            offset
         });
+        
+        for (let list of lists) {
+            const itemCount = await ListItem.count({ where: { list_id: list.id } });
+            const completedItemCount = await ListItem.count({ where: { list_id: list.id, purchased: true } });
+        
+            list.dataValues.list_item_count = itemCount;
+            list.dataValues.completed_list_item_count = completedItemCount;
+        }        
 
         res.json({
             lists,
