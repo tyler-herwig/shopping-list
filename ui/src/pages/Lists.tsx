@@ -67,14 +67,6 @@ const Lists: React.FC = () => {
         setSearchTerm('');
     }
 
-    if (isLoading) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="60vh">
-                <CircularProgress />
-            </Box>
-        );
-    }
-
     return (
         <Box
             className="lazy-load-container"
@@ -95,6 +87,7 @@ const Lists: React.FC = () => {
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px'}, mb: 3, width: '100%' }}
                     onChange={handleSearchChange}
                     value={internalSearchTerm}
+                    disabled={isLoading}
                     slotProps={{
                         input: {
                           startAdornment: (
@@ -113,17 +106,23 @@ const Lists: React.FC = () => {
                       }}
                 />
                 <Grid container spacing={3}>
-                    {data?.pages.map((page) =>
-                        page.lists.map((list) => (
-                            <Grid item xs={12} sm={6} key={list.id}>
-                                <Box>
-                                    <ListCard
-                                        list={list}
-                                        handleEditClick={handleEditClick}
-                                    />
-                                </Box>
-                            </Grid>
-                        ))
+                    {isLoading ? (
+                        <Box display="flex" justifyContent="center" alignItems="center" height="60vh" width="100%">
+                            <CircularProgress />
+                        </Box>
+                    ) : (
+                        data?.pages.map((page) =>
+                            page.lists.map((list) => (
+                                <Grid item xs={12} sm={6} key={list.id}>
+                                    <Box>
+                                        <ListCard
+                                            list={list}
+                                            handleEditClick={handleEditClick}
+                                        />
+                                    </Box>
+                                </Grid>
+                            ))
+                        )
                     )}
                 </Grid>
 

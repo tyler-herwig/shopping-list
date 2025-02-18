@@ -13,8 +13,8 @@ const Register: React.FC = () => {
   const validationSchema = Yup.object({
     user_name: Yup.string().required('Username is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),
-    firstName: Yup.string().required('First name is required'),
-    lastName: Yup.string().required('Last name is required'),
+    first_name: Yup.string().required('First name is required'),
+    last_name: Yup.string().required('Last name is required'),
     password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password')], 'Passwords must match')

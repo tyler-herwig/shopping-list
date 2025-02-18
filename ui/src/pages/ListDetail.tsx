@@ -89,7 +89,7 @@ const ListDetail: React.FC = () => {
 
     if (isLoadingList || isLoadingListItems) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="60vh">
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
                 <CircularProgress />
             </Box>
         );
