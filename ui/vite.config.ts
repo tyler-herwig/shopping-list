@@ -24,6 +24,20 @@ export default defineConfig({
             type: 'image/png',
           },
         ],
+        screenshots: [
+          {
+              "src": "/screenshots/mobile.png",
+              "sizes": "1080x1920",
+              "type": "image/png",
+              "form_factor": "narrow"
+          },
+          {
+              "src": "/screenshots/desktop.png",
+              "sizes": "1920x1080",
+              "type": "image/png",
+              "form_factor": "wide"
+          }
+      ]
       },
     }),
   ],
