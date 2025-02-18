@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({ title, subTitle }) => {
                     )}
                 </Box>
                 <Avatar sx={{ width: 56, height: 56 }} onClick={handleMenuClick}>
-                    {user?.firstName?.charAt(0).toUpperCase()}
+                    {user?.first_name?.charAt(0).toUpperCase()}
                 </Avatar>
             </Box>
 

@@ -85,7 +85,7 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                 ) : (
                     <Formik
                         initialValues={{
-                            listId: listId || null,
+                            list_id: listId || null,
                             name: listItemData?.name || '',
                             description: listItemData?.description || '',
                             category: listItemData?.category || '',

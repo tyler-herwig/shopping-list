@@ -1,8 +1,8 @@
 import axios from '../utils/axiosConfig';
 import { IList, IListItem, IListItemResponse, IListResponse } from '../models/lists';
 
-export const fetchListsByUserId = async (userId: string | undefined, searchTerm: string, page: number | unknown = 1, limit: number = 10): Promise<IListResponse> => {
-    const response = await axios.get<{ lists: IList[], total: number, totalPages: number, currentPage: number }>(`/lists?userId=${userId}&search=${searchTerm}&page=${page}&limit=${limit}`);
+export const fetchListsByUserId = async (user_id: string | undefined, searchTerm: string, page: number | unknown = 1, limit: number = 10): Promise<IListResponse> => {
+    const response = await axios.get<{ lists: IList[], total: number, total_pages: number, current_page: number }>(`/lists?user_id=${user_id}&search=${searchTerm}&page=${page}&limit=${limit}`);
 
     return response.data;
 }
@@ -32,13 +32,13 @@ export const deleteList = async(id: number | undefined) => {
 }
 
 export const fetchListItemById = async (id: number | undefined): Promise<IListItem> => {
-    const response = await axios.get<{ listItem: IListItem }>(`/list-items/${id}`);
+    const response = await axios.get<{ list_item: IListItem }>(`/list-items/${id}`);
 
-    return response.data.listItem;
+    return response.data.list_item;
 }
 
 export const fetchListItemsByListId = async (id: number | undefined): Promise<IListItemResponse> => {
-    const response = await axios.get<{ listItems: { active: IListItem[], completed: IListItem[] }, totalCost: number }>(`/list-items?listId=${id}`);
+    const response = await axios.get<{ list_items: { active: IListItem[], completed: IListItem[] }, total_cost: number }>(`/list-items?list_id=${id}`);
 
     return response.data;
 }
@@ -50,7 +50,7 @@ export const createNewListItem = async (listItem: IListItem) => {
 }
 
 export const updateListItem = async (id: number | undefined, listItem: IListItem) => {
-    const response = await axios.put<{ listItem: IListItem }>(`/list-items/${id}`, listItem);
+    const response = await axios.put<{ list_item: IListItem }>(`/list-items/${id}`, listItem);
 
     return response.data;
 }

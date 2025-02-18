@@ -35,14 +35,14 @@ const Lists: React.FC = () => {
         hasNextPage,
         fetchNextPage,
     } = useInfiniteQuery<IListResponse>({
-        queryKey: ["lists", user?.userId, searchTerm],
-        queryFn: ({ pageParam = 1 }) => fetchListsByUserId(user?.userId, searchTerm, pageParam, 10),
+        queryKey: ["lists", user?.user_id, searchTerm],
+        queryFn: ({ pageParam = 1 }) => fetchListsByUserId(user?.user_id, searchTerm, pageParam, 10),
         getNextPageParam: (lastPage) => {
             // Determine if there are more pages based on the response
-            return lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined;
+            return lastPage.current_page < lastPage.total_pages ? lastPage.current_page + 1 : undefined;
         },
         initialPageParam: 1,
-        enabled: !!user?.userId,
+        enabled: !!user?.user_id,
     });
 
     const loadMore = useCallback(
@@ -82,7 +82,7 @@ const Lists: React.FC = () => {
             onScroll={loadMore}
         >
             <Header
-                title={`Hi ${user?.firstName}!`}
+                title={`Hi ${user?.first_name}!`}
                 subTitle={`You have ${data?.pages?.[0]?.total || 0} active lists.`}
             />
             <Container
@@ -135,7 +135,7 @@ const Lists: React.FC = () => {
             </Container>
 
             <ListModal 
-                userId={user?.userId} 
+                userId={user?.user_id} 
                 open={openListModal} 
                 handleClose={() => {
                     setSelectedListId(undefined);

@@ -1,8 +1,8 @@
 export interface IListResponse {
     lists: IList[];
     total: number;
-    totalPages: number;
-    currentPage: number;
+    total_pages: number;
+    current_page: number;
 
 }
 
@@ -10,22 +10,22 @@ export interface IList {
     id?: number;
     name: string;
     description: string;
-    userId?: string | null;
-    listItemCount?: number;
-    completedListItemCount?: number;
+    user_id?: string | null;
+    list_item_count?: number;
+    completed_list_item_count?: number;
 }
 
 export interface IListItemResponse {
-    listItems: {
+    list_items: {
         active: IListItem[],
         completed: IListItem[]
     },
-    totalCost: number
+    total_cost: number
 }
 
 export interface IListItem {
     id?: number;
-    listId?: number | null;
+    list_id?: number | null;
     name: string;
     description: string;
     category: string;

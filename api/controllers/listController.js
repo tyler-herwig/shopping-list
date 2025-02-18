@@ -77,8 +77,8 @@ exports.getLists = async (req, res) => {
         res.json({
             lists,
             total,
-            totalPages: Math.ceil(total / limit),
-            currentPage: page
+            total_pages: Math.ceil(total / limit),
+            current_page: page
         });
 
     } catch (err) {

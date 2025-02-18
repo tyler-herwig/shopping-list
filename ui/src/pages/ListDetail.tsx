@@ -85,7 +85,7 @@ const ListDetail: React.FC = () => {
         mutate(listItemId);
       }
 
-    const totalItems = (listItems?.listItems?.active?.length || 0) + (listItems?.listItems?.completed?.length || 0);
+    const totalItems = (listItems?.list_items?.active?.length || 0) + (listItems?.list_items?.completed?.length || 0);
 
     if (isLoadingList || isLoadingListItems) {
         return (
@@ -99,7 +99,7 @@ const ListDetail: React.FC = () => {
         <>
         <Header
             title="You have..."
-            subTitle={`${listItems?.listItems.active.length} active list items`}
+            subTitle={`${listItems?.list_items.active.length} active list items`}
         />
         <Container maxWidth="lg" sx={{ mt: 2 }}>
             <Card sx={{ boxShadow: 3, borderRadius: 3, mb: 15 }}>
@@ -111,17 +111,17 @@ const ListDetail: React.FC = () => {
                 />
                 <CardContent>
                     <ListItemProgressBar
-                        completedItems={listItems?.listItems.completed.length}
+                        completedItems={listItems?.list_items.completed.length}
                         totalItems={totalItems}
                     />
-                    {!!listItems?.totalCost && (
+                    {!!listItems?.total_cost && (
                         <Box sx={{ textAlign: "center" }}>
                             <Typography variant="h6" sx={{ display: "inline", mr: 0.7 }}>
                                 Your list total is
                             </Typography>
                             <Typography variant="h6" sx={{ fontWeight: "bold", display: "inline" }}>
                                 <NumericFormat
-                                    value={listItems?.totalCost}
+                                    value={listItems?.total_cost}
                                     displayType="text"
                                     thousandSeparator={true}
                                     prefix="$"
@@ -131,13 +131,13 @@ const ListDetail: React.FC = () => {
                             </Typography>
                         </Box>
                     )}
-                    {listItems?.listItems.active.length === 0 ? (
+                    {listItems?.list_items.active.length === 0 ? (
                         <Typography variant="h6" color="textSecondary" align="center">
                             No items found.
                         </Typography>
                     ) : (
                         <List>
-                            {listItems?.listItems.active.map((listItem) => (
+                            {listItems?.list_items.active.map((listItem) => (
                                 <ListItem
                                     key={listItem.id}
                                     sx={{ borderBottom: "1px solid #ddd", "&:last-child": { borderBottom: "none" } }}
@@ -161,7 +161,7 @@ const ListDetail: React.FC = () => {
                             ))}
                         </List>
                     )}
-                    {!!listItems?.listItems.completed.length && (
+                    {!!listItems?.list_items.completed.length && (
                         <Accordion
                             sx={{
                                 boxShadow: "none",
@@ -176,11 +176,11 @@ const ListDetail: React.FC = () => {
                                 aria-controls="completed-items-accordion"
                                 id="completed-items-accordion"
                             >
-                                <Typography component="span">({listItems?.listItems.completed.length}) Completed Items</Typography>
+                                <Typography component="span">({listItems?.list_items.completed.length}) Completed Items</Typography>
                             </AccordionSummary>
                             <AccordionDetails>
                                 <List>
-                                    {listItems?.listItems.completed.map((listItem) => (
+                                    {listItems?.list_items.completed.map((listItem) => (
                                         <ListItem
                                             key={listItem.id}
                                             sx={{ borderBottom: "1px solid #ddd", "&:last-child": { borderBottom: "none" } }}

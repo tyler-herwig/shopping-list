@@ -11,7 +11,7 @@ const Register: React.FC = () => {
   const navigate = useNavigate();
 
   const validationSchema = Yup.object({
-    userName: Yup.string().required('Username is required'),
+    user_name: Yup.string().required('Username is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),
     firstName: Yup.string().required('First name is required'),
     lastName: Yup.string().required('Last name is required'),
@@ -77,10 +77,10 @@ const Register: React.FC = () => {
           </Typography>
           <Formik
             initialValues={{
-              userName: '',
+              user_name: '',
               email: '',
-              firstName: '',
-              lastName: '',
+              first_name: '',
+              last_name: '',
               password: '',
               confirmPassword: '',
             }}
@@ -93,13 +93,13 @@ const Register: React.FC = () => {
                   as={TextField}
                   fullWidth
                   label="Username"
-                  name="userName"
+                  name="user_name"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   margin="normal"
                   variant="outlined"
-                  error={touched.userName && Boolean(errors.userName)}
-                  helperText={touched.userName && errors.userName}
+                  error={touched.user_name && Boolean(errors.user_name)}
+                  helperText={touched.user_name && errors.user_name}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
                 />
                 <Field
@@ -119,26 +119,26 @@ const Register: React.FC = () => {
                   as={TextField}
                   fullWidth
                   label="First Name"
-                  name="firstName"
+                  name="first_name"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   margin="normal"
                   variant="outlined"
-                  error={touched.firstName && Boolean(errors.firstName)}
-                  helperText={touched.firstName && errors.firstName}
+                  error={touched.first_name && Boolean(errors.first_name)}
+                  helperText={touched.first_name && errors.first_name}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
                 />
                 <Field
                   as={TextField}
                   fullWidth
                   label="Last Name"
-                  name="lastName"
+                  name="last_name"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   margin="normal"
                   variant="outlined"
-                  error={touched.lastName && Boolean(errors.lastName)}
-                  helperText={touched.lastName && errors.lastName}
+                  error={touched.last_name && Boolean(errors.last_name)}
+                  helperText={touched.last_name && errors.last_name}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
                 />
                 <Field

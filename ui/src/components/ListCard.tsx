@@ -90,8 +90,8 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick }) => {
         </Box>
 
         <ListItemProgressBar
-          completedItems={list.completedListItemCount}
-          totalItems={list.listItemCount}
+          completedItems={list.completed_list_item_count}
+          totalItems={list.list_item_count}
         />
       </StyledCard>
 

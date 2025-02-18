@@ -17,14 +17,14 @@ const Login: React.FC = () => {
   const { setUserData } = useUserContext();
 
   const validationSchema = Yup.object({
-    username: Yup.string().required('Username is required'),
+    user_name: Yup.string().required('Username is required'),
     password: Yup.string().required('Password is required'),
   });
 
-  const handleLogin = async (values: { username: string; password: string }) => {
+  const handleLogin = async (values: { user_name: string; password: string }) => {
     try {
       const response = await axios.post<LoginResponse>('/login', {
-        userName: values.username,
+        user_name: values.user_name,
         password: values.password,
       });
 
@@ -85,7 +85,7 @@ const Login: React.FC = () => {
           </Typography>
           <Formik
             initialValues={{
-              username: '',
+              user_name: '',
               password: '',
             }}
             validationSchema={validationSchema}
@@ -97,13 +97,13 @@ const Login: React.FC = () => {
                   as={TextField}
                   fullWidth
                   label="Username"
-                  name="username"
+                  name="user_name"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   margin="normal"
                   variant="outlined"
-                  error={touched.username && Boolean(errors.username)}
-                  helperText={touched.username && errors.username}
+                  error={touched.user_name && Boolean(errors.user_name)}
+                  helperText={touched.user_name && errors.user_name}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: '15px',

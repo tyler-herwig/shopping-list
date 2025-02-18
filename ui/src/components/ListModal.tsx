@@ -96,7 +96,7 @@ const ListModal: React.FC<ListModalProps> = ({ userId, open, handleClose, listId
                         initialValues={{
                             name: listData?.name || '',
                             description: listData?.description || '',
-                            userId: userId || ''
+                            user_id: userId || ''
                         }}
                         validationSchema={validationSchema}
                         onSubmit={(values, { resetForm }) => {
