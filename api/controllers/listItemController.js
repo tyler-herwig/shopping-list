@@ -2,7 +2,9 @@ const { ListItem } = require('../models');
 
 exports.createListItem = async (req, res) => {
     try {
-        const list_item = await ListItem.create(req.body);
+        const listItemData = { ...req.body, purchased: false };
+
+        const list_item = await ListItem.create(listItemData);
         res.json({ message: "List item created successfully!", list_item });
     } catch (err) {
         console.error(err);
