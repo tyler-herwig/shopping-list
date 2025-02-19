@@ -67,6 +67,8 @@ const Lists: React.FC = () => {
         setSearchTerm('');
     }
 
+    const isDataReady = !isLoading && data?.pages?.[0]?.total !== undefined && user?.first_name;
+
     return (
         <Box
             className="lazy-load-container"
@@ -76,6 +78,7 @@ const Lists: React.FC = () => {
             <Header
                 title={`Hi ${user?.first_name}!`}
                 subTitle={`You have ${data?.pages?.[0]?.total || 0} active lists.`}
+                isLoading={!isDataReady}
             />
             <Container
                 maxWidth="lg"

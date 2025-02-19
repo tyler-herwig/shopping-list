@@ -1,16 +1,16 @@
-import { Box, Typography, Avatar, Menu, MenuItem } from '@mui/material';
+import { Box, Typography, Avatar, Menu, MenuItem, Skeleton } from '@mui/material';
 import React, { useState } from 'react';
 import { useUserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
-    title?: string | undefined;
-    subTitle?: string | undefined;
+    title?: React.ReactNode;
+    subTitle?: React.ReactNode;
+    isLoading?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, subTitle }) => {
+const Header: React.FC<HeaderProps> = ({ title, subTitle, isLoading }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
     const navigate = useNavigate();
     const { user, clearUserData } = useUserContext();
 
@@ -26,8 +26,7 @@ const Header: React.FC<HeaderProps> = ({ title, subTitle }) => {
         clearUserData();
         localStorage.removeItem('authToken');
         navigate('/login');
-        return;
-    }
+    };
 
     return (
         <>
@@ -45,32 +44,42 @@ const Header: React.FC<HeaderProps> = ({ title, subTitle }) => {
                 }}
             >
                 <Box>
-                    {title  && (
-                        <Typography variant="h4" fontWeight="bold">
-                            {title}
-                        </Typography>
-                    )}
-                    {subTitle && (
-                        <Typography variant="h6" color="textSecondary" gutterBottom>
-                            {subTitle}
-                        </Typography>
+                    {isLoading ? (
+                        <>
+                            <Skeleton variant="text" width={150} height={50} />
+                            <Skeleton variant="text" width={200} height={25} />
+                        </>
+                    ) : (
+                        <>
+                            {title && (
+                                <Typography variant="h4" fontWeight="bold">
+                                    {title}
+                                </Typography>
+                            )}
+                            {subTitle && (
+                                <Typography variant="h6" color="textSecondary" gutterBottom>
+                                    {subTitle}
+                                </Typography>
+                            )}
+                        </>
                     )}
                 </Box>
-                <Avatar sx={{ width: 56, height: 56 }} onClick={handleMenuClick}>
-                    {user?.first_name?.charAt(0).toUpperCase()}
-                </Avatar>
+
+                {isLoading ? (
+                    <Skeleton variant="circular" width={56} height={56} />
+                ) : (
+                    <Avatar sx={{ width: 56, height: 56 }} onClick={handleMenuClick}>
+                        {user?.first_name?.charAt(0).toUpperCase()}
+                    </Avatar>
+                )}
             </Box>
 
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-            >
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                 <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
-      </>
-    )
-}
+        </>
+    );
+};
 
 export default Header;
