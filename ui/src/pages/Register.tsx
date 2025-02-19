@@ -6,9 +6,12 @@ import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import axios from '../utils/axiosConfig';
 import { IUser } from '../models/user';
+import useErrorHandling from '../hooks/useErrorHandling';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
+
+  const { errorMessage, handleError, clearError } = useErrorHandling();
 
   const validationSchema = Yup.object({
     user_name: Yup.string().required('Username is required'),
@@ -25,8 +28,9 @@ const Register: React.FC = () => {
     try {
       await axios.post('/user', values);
       navigate('/login');
+      clearError();
     } catch (error) {
-      // Handle error if registration fails
+      handleError(error);
     }
   };
 
@@ -169,6 +173,7 @@ const Register: React.FC = () => {
                   helperText={touched.confirmPassword && errors.confirmPassword}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
                 />
+                {errorMessage && <Typography variant="body2" textAlign="center" color="error">{errorMessage}</Typography>}
                 <StyledRegisterButton type="submit" color="primary" fullWidth>
                   Register
                 </StyledRegisterButton>

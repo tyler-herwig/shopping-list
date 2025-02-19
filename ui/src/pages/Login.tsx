@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../context/UserContext';
 import axios from '../utils/axiosConfig';
 import { IUser } from '../models/user';
+import useErrorHandling from '../hooks/useErrorHandling';
 
 interface LoginResponse extends IUser {
   token: string;
@@ -15,6 +16,8 @@ interface LoginResponse extends IUser {
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { setUserData } = useUserContext();
+
+  const { errorMessage, handleError, clearError } = useErrorHandling();
 
   const validationSchema = Yup.object({
     user_name: Yup.string().required('Username is required'),
@@ -33,8 +36,9 @@ const Login: React.FC = () => {
       localStorage.setItem('authToken', token);
       setUserData(user);
       navigate('/dashboard');
+      clearError();
     } catch (error) {
-      // Handle error if login fails
+      handleError(error);
     }
   };
 
@@ -128,6 +132,7 @@ const Login: React.FC = () => {
                     },
                   }}
                 />
+                {errorMessage && <Typography variant="body2" textAlign="center" color="error">{errorMessage}</Typography>}
                 <StyledLoginButton
                   type="submit"
                   color="primary"

@@ -138,7 +138,7 @@ const ListModal: React.FC<ListModalProps> = ({ userId, open, handleClose, listId
                                     helperText={touched.description && errors.description}
                                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
                                 />
-                                {errorMessage && <Typography color="error">{errorMessage}</Typography>}
+                                {errorMessage && <Typography variant="body2" textAlign="center" color="error">{errorMessage}</Typography>}
                                 <DialogActions>
                                     <Button 
                                         type="submit" 

@@ -186,7 +186,7 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ listId, open, handleClose
                                         />
                                     )}
                                 </Field>
-                                {errorMessage && <Typography color="error">{errorMessage}</Typography>}
+                                {errorMessage && <Typography variant="body2" textAlign="center" color="error">{errorMessage}</Typography>}
                                 <DialogActions>
                                     <Button 
                                         type="submit" 

@@ -13,7 +13,11 @@ exports.registerUser = async (req, res) => {
     const { user_name, password, first_name, last_name } = req.body;
     try {
         const existingUser = await User.findOne({ where: { user_name } });
-        if (existingUser) return res.sendStatus(409);
+        if (existingUser) {
+            return res.status(409).json({
+                error: "This username is already taken. Please choose a different one."
+            });
+        };
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const full_name = `${first_name} ${last_name}`;
@@ -31,10 +35,18 @@ exports.loginUser = async (req, res) => {
     const { user_name, password } = req.body;
     try {
         const user = await User.findOne({ where: { user_name } });
-        if (!user) return res.sendStatus(404);
+        if (!user) {
+            return res.status(404).json({
+                error: "Invalid username or password. Please try again."
+            });
+        }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(401).send('Password incorrect!');
+        if (!isMatch) {
+            return res.status(401).json({
+                error: "Invalid username or password. Please try again."
+            });
+        }
 
         const token = generateToken(user);
         res.json({ user_id: user.user_id, user_name: user.user_name, full_name: user.full_name, first_name: user.first_name, last_name: user.last_name, token });
