@@ -8,11 +8,12 @@ export interface IListResponse {
 
 export interface IList {
     id?: number;
-    name: string;
-    description: string;
+    name?: string;
+    description?: string;
     user_id?: string | null;
     list_item_count?: number;
     completed_list_item_count?: number;
+    completed?: boolean;
 }
 
 export interface IListItemResponse {

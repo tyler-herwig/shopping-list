@@ -46,7 +46,9 @@ const ListModal: React.FC<ListModalProps> = ({ userId, open, handleClose, listId
     const createMutation = useMutation({
         mutationFn: createNewList,
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ['lists'] });
+            queryClient.invalidateQueries({ queryKey: ["lists"], exact: false });
+            queryClient.invalidateQueries({ queryKey: ["active-list-count"], exact: false });
+            queryClient.invalidateQueries({ queryKey: ["completed-list-count"], exact: false });
             handleClose();
             navigate(`/dashboard/lists/${data.list.id}`);
         },

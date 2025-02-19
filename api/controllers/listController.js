@@ -16,7 +16,7 @@ exports.createList = async (req, res) => {
             });
         }
 
-        const list = await List.create({ name, description, user_id });
+        const list = await List.create({ name, description, user_id, completed: false });
         return res.status(201).json({
             message: "List created successfully!",
             list,
@@ -38,7 +38,7 @@ exports.createList = async (req, res) => {
 };
 
 exports.getLists = async (req, res) => {
-    const { user_id, search } = req.query;
+    const { user_id, search, completed } = req.query;
     let { page, limit } = req.query;
 
     page = parseInt(page) || 1;
@@ -52,6 +52,13 @@ exports.getLists = async (req, res) => {
             whereClause[Op.or] = [
                 { name: { [Op.iLike]: `%${search}%` } },
                 { description: { [Op.iLike]: `%${search}%` } }
+            ];
+        }
+
+        if (completed) {
+            whereClause[Op.and] = [
+                ...whereClause[Op.and] || [], 
+                { completed: completed === 'true' }
             ];
         }
 
@@ -93,6 +100,28 @@ exports.getListById = async (req, res) => {
         if (!list) return res.sendStatus(404);
 
         res.json({ list });
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+};
+
+exports.getListCount = async (req, res) => {
+    const { user_id, completed } = req.query;
+
+    try {
+        const whereClause = { user_id };
+
+        if (completed) {
+            whereClause.completed = completed === 'true';
+        }
+
+        const list_count = await List.count({ where: whereClause });
+
+        res.json({
+            list_count
+        });
+
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

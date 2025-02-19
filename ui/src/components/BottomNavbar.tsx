@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { BottomNavigation, BottomNavigationAction } from '@mui/material';
+import { Badge, BottomNavigation, BottomNavigationAction, Divider, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
-import SettingsIcon from '@mui/icons-material/Settings';
+import MenuIcon from '@mui/icons-material/Menu';
 import { useBottomNavbar } from '../context/BottomNavbarContext';
-import { styled } from '@mui/system';
+import { Box, styled } from '@mui/system';
+import { Close, ViewList } from '@mui/icons-material';
+import { useQuery } from '@tanstack/react-query';
+import { fetchListCount } from '../api/lists';
+import { useUserContext } from '../context/UserContext';
 
 const BottomNavbar: React.FC = () => {
+  const [menuDrawerOpen, setMenuDrawerOpen] = useState<boolean>(false);
+
+  const { user } = useUserContext();
   const navigate = useNavigate();
   const location = useLocation();
   const { handleOpenListModal, handleOpenListItemModal } = useBottomNavbar();
@@ -15,6 +22,20 @@ const BottomNavbar: React.FC = () => {
   if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') {
     return null;
   }
+
+  const { data: activeListCount, isLoading: isLoadingActiveListCount } = useQuery({
+    queryKey: ['active-list-count', user?.user_id],
+    queryFn: () => user?.user_id ? fetchListCount(user.user_id, false) : null,
+    enabled: !!user?.user_id
+  });
+
+  const { data: completedListCount, isLoading: isLoadingCompletedListCount } = useQuery({
+    queryKey: ['completed-list-count', user?.user_id],
+    queryFn: () => user?.user_id ? fetchListCount(user.user_id, true) : null,
+    enabled: !!user?.user_id
+  });
+
+  const showAddButton = location.pathname !== '/dashboard/completed' ? true : false;
 
   const handleBackButton = () => {
     navigate(-1);
@@ -28,26 +49,89 @@ const BottomNavbar: React.FC = () => {
     }
   };
 
-  const handleSearchButton = () => {
-    alert('Settings button clicked!');
+  const handleMenuButton = () => {
+    setMenuDrawerOpen(true);
   };
 
   return (
+    <>
     <StyledBottomNavbar showLabels>
       <StyledBottomNavigationAction
         icon={<ArrowBackIcon />}
         onClick={handleBackButton}
       />
-      {/* Centered Add button */}
-      <CenterAddButton 
-        icon={<AddIcon />}
-        onClick={handleAddButton}
-      />
+      {showAddButton && (
+        <CenterAddButton 
+          icon={<AddIcon />}
+          onClick={handleAddButton}
+        />
+      )}
       <StyledBottomNavigationAction
-        icon={<SettingsIcon />}
-        onClick={handleSearchButton}
+        icon={<MenuIcon />}
+        onClick={handleMenuButton}
       />
     </StyledBottomNavbar>
+    <Drawer
+        anchor="bottom"
+        open={menuDrawerOpen}
+        onClose={() => setMenuDrawerOpen(false)}
+        sx={{
+        width: 'auto',
+        flexShrink: 0,
+          '& .MuiDrawer-paper': {
+              width: '100%',
+              height: 'auto',
+              borderRadius: '20px 20px 0 0',
+              padding: '20px',
+              boxSizing: 'border-box',
+          },
+        }}
+      >
+          <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+              Menu
+          </Typography>
+          <IconButton sx={{ padding: 0 }} onClick={() => setMenuDrawerOpen(false)}>
+              <Close />
+          </IconButton>
+          </Box>
+
+          <List>
+          <ListItem 
+            onClick={
+              () => {
+                setMenuDrawerOpen(false);
+                navigate('/dashboard');
+              }
+            }
+          >
+              <ListItemIcon>
+                <Badge badgeContent={isLoadingActiveListCount ? '...' : activeListCount} color="secondary">
+                  <ViewList/>
+                </Badge>
+              </ListItemIcon>
+              <ListItemText primary="Active Lists" />
+          </ListItem>
+          <Divider />
+          <ListItem 
+            onClick={
+              () => {
+                setMenuDrawerOpen(false);
+                navigate('/dashboard/completed');
+              }
+            }
+          >
+              <ListItemIcon>
+                <Badge badgeContent={isLoadingCompletedListCount ? '...' : completedListCount} color="primary">
+                  <ViewList/>
+                </Badge>
+              </ListItemIcon>
+              <ListItemText primary="Completed Lists" />
+          </ListItem>
+          </List>
+      </Drawer>
+    </>
+    
   );
 };
 

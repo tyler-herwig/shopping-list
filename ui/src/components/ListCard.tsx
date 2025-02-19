@@ -1,32 +1,46 @@
 import React, { useState } from "react";
 import { Card, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Button, Divider, Dialog, DialogActions, DialogContent, DialogTitle, ListItemIcon } from "@mui/material";
 import { styled } from "@mui/system";
-import { MoreHoriz, Edit, Delete, Close } from "@mui/icons-material";
+import { MoreHoriz, Edit, Delete, Close, Check, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteList } from "../api/lists";
+import { deleteList, updateList } from "../api/lists";
 import { IList } from "../models/lists";
 import ListItemProgressBar from "./ListItemProgressBar";
 
 interface ListCardProps {
   list: IList;
   handleEditClick: (id: number | undefined) => void;
+  completed: boolean;
 }
 
-const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick }) => {
+const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick, completed }) => {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { mutate, isError } = useMutation({
+  const deleteMutation = useMutation({
     mutationFn: deleteList,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lists'] });
+      queryClient.invalidateQueries({ queryKey: ["lists"], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["active-list-count"], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["completed-list-count"], exact: false });
       setOpenDeleteDialog(false);
     },
   });
+
+  const updateMutation = useMutation({
+      mutationFn: ({ id, completed }: { id: number | undefined; completed: boolean }) =>
+          updateList(id, { completed } as IList),
+      onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["lists"], exact: false });
+          queryClient.invalidateQueries({ queryKey: ["active-list-count"], exact: false });
+          queryClient.invalidateQueries({ queryKey: ["completed-list-count"], exact: false });
+      }
+  });
+
 
   /* Card Handlers */
   const handleCardClick = () => {
@@ -57,8 +71,15 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick }) => {
   };
 
   const handleDelete = () => {
-    mutate(list.id);
+    deleteMutation.mutate(list.id);
   };
+
+  /* Complete Handlers */
+  const handleCompleteMenuOption = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setDrawerOpen(false);
+    updateMutation.mutate({ id: list.id, completed: !completed })
+  }
 
   return (
     <>
@@ -134,6 +155,24 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick }) => {
             </ListItemIcon>
             <ListItemText primary="Delete" />
           </ListItem>
+          <Divider />
+          <ListItem onClick={handleCompleteMenuOption}>
+            {!completed ? (
+              <>
+                <ListItemIcon>
+                  <Check/>
+                </ListItemIcon>
+                <ListItemText primary="Mark Complete" />
+              </>
+            ) : (
+              <>
+                <ListItemIcon>
+                  <CheckBoxOutlineBlank/>
+                </ListItemIcon>
+                <ListItemText primary="Mark Incomplete" />
+              </>
+            )}
+          </ListItem>
         </List>
       </Drawer>
 
@@ -142,7 +181,7 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick }) => {
         <DialogTitle>{"Delete List"}</DialogTitle>
         <DialogContent>
           Are you sure you want to delete <Typography sx={{ fontWeight: 'bold', display: 'inline' }}>{list.name}</Typography>?
-          {isError && <Typography color="error">Error deleting list!</Typography>}
+          {deleteMutation.isError && <Typography color="error">Error deleting list!</Typography>}
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleDeleteDialogClose}>

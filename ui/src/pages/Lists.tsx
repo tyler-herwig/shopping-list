@@ -12,7 +12,11 @@ import { useBottomNavbar } from "../context/BottomNavbarContext";
 import Header from "../components/Header";
 import { debounce } from 'lodash';
 
-const Lists: React.FC = () => {
+interface ListsProps {
+    completed: boolean;
+}
+
+const Lists: React.FC<ListsProps> = ({ completed }) => {
     const { user, isUserLoaded } = useUserContext();
     const { openListModal, handleOpenListModal, handleCloseModal } = useBottomNavbar();
     const [selectedListId, setSelectedListId] = useState<number | undefined>();
@@ -31,12 +35,13 @@ const Lists: React.FC = () => {
     const {
         data,
         isLoading,
+        isFetching,
         isFetchingNextPage,
         hasNextPage,
         fetchNextPage,
     } = useInfiniteQuery<IListResponse>({
-        queryKey: ["lists", user?.user_id, searchTerm],
-        queryFn: ({ pageParam = 1 }) => fetchListsByUserId(user?.user_id, searchTerm, pageParam, 10),
+        queryKey: ["lists", user?.user_id, searchTerm, completed],
+        queryFn: ({ pageParam = 1 }) => fetchListsByUserId(user?.user_id, completed, searchTerm, pageParam, 10),
         getNextPageParam: (lastPage) => {
             // Determine if there are more pages based on the response
             return lastPage.current_page < lastPage.total_pages ? lastPage.current_page + 1 : undefined;
@@ -77,7 +82,7 @@ const Lists: React.FC = () => {
         >
             <Header
                 title={!isUserLoaded ? <Skeleton variant="text" width={150} height={50} /> : `Hi ${user?.first_name}!`}
-                subTitle={!isDataReady ? <Skeleton variant="text" width={200} height={32} /> : `You have ${data?.pages?.[0]?.total} active lists.`}
+                subTitle={!isDataReady ? <Skeleton variant="text" width={200} height={32} /> : `You have ${data?.pages?.[0]?.total} ${!completed ? 'active' : 'completed'} lists.`}
             />
             <Container
                 maxWidth="lg"
@@ -108,7 +113,7 @@ const Lists: React.FC = () => {
                       }}
                 />
                 <Grid container spacing={3}>
-                    {isLoading ? (
+                    {isLoading || (isFetching && !isFetchingNextPage)? (
                         <Box display="flex" justifyContent="center" alignItems="center" height="60vh" width="100%">
                             <CircularProgress />
                         </Box>
@@ -120,6 +125,7 @@ const Lists: React.FC = () => {
                                         <ListCard
                                             list={list}
                                             handleEditClick={handleEditClick}
+                                            completed={completed}
                                         />
                                     </Box>
                                 </Grid>

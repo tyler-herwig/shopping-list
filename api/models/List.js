@@ -3,7 +3,7 @@ const { DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
     const List = sequelize.define('List', {
         id: {
-            type: DataTypes.INTEGER,  // Works for PostgreSQL with SERIAL behavior for auto-increment
+            type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true
         },
@@ -25,6 +25,10 @@ module.exports = (sequelize) => {
         user_id: {
             type: DataTypes.INTEGER,
             allowNull: false
+        },
+        completed: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true
         }
     }, {
         schema: 'listify',

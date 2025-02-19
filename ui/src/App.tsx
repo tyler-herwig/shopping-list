@@ -59,7 +59,15 @@ const App: React.FC = () => {
                   path="/dashboard" 
                   element={
                     <ProtectedRoute>
-                      <Lists />
+                      <Lists completed={false}/>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/dashboard/completed" 
+                  element={
+                    <ProtectedRoute>
+                      <Lists completed={true}/>
                     </ProtectedRoute>
                   } 
                 />
