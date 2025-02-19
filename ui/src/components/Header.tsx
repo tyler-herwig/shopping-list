@@ -6,13 +6,12 @@ import { useNavigate } from 'react-router-dom';
 interface HeaderProps {
     title?: React.ReactNode;
     subTitle?: React.ReactNode;
-    isLoading?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, subTitle, isLoading }) => {
+const Header: React.FC<HeaderProps> = ({ title, subTitle }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const navigate = useNavigate();
-    const { user, clearUserData } = useUserContext();
+    const { user, clearUserData, isUserLoaded } = useUserContext();
 
     const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -44,34 +43,25 @@ const Header: React.FC<HeaderProps> = ({ title, subTitle, isLoading }) => {
                 }}
             >
                 <Box>
-                    {isLoading ? (
-                        <>
-                            <Skeleton variant="text" width={150} height={50} />
-                            <Skeleton variant="text" width={200} height={25} />
-                        </>
-                    ) : (
-                        <>
-                            {title && (
-                                <Typography variant="h4" fontWeight="bold">
-                                    {title}
-                                </Typography>
-                            )}
-                            {subTitle && (
-                                <Typography variant="h6" color="textSecondary" gutterBottom>
-                                    {subTitle}
-                                </Typography>
-                            )}
-                        </>
+                    {title && (
+                        <Typography variant="h4" fontWeight="bold">
+                            {title}
+                        </Typography>
+                    )}
+                    {subTitle && (
+                            <Typography variant="h6" color="textSecondary" gutterBottom>
+                                {subTitle}
+                            </Typography>
                     )}
                 </Box>
-
-                {isLoading ? (
+                {!isUserLoaded ? (
                     <Skeleton variant="circular" width={56} height={56} />
                 ) : (
                     <Avatar sx={{ width: 56, height: 56 }} onClick={handleMenuClick}>
                         {user?.first_name?.charAt(0).toUpperCase()}
                     </Avatar>
                 )}
+                
             </Box>
 
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>

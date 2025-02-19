@@ -3,7 +3,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useUserContext } from "../context/UserContext";
 import { fetchListsByUserId } from "../api/lists";
 import { IListResponse } from "../models/lists";
-import { Container, CircularProgress, Grid, Box, TextField, InputAdornment, IconButton } from "@mui/material";
+import { Container, CircularProgress, Grid, Box, TextField, InputAdornment, IconButton, Skeleton } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear'; 
 import ListCard from "../components/ListCard";
@@ -13,7 +13,7 @@ import Header from "../components/Header";
 import { debounce } from 'lodash';
 
 const Lists: React.FC = () => {
-    const { user } = useUserContext();
+    const { user, isUserLoaded } = useUserContext();
     const { openListModal, handleOpenListModal, handleCloseModal } = useBottomNavbar();
     const [selectedListId, setSelectedListId] = useState<number | undefined>();
     const [searchTerm, setSearchTerm] = useState<string>('');
@@ -67,7 +67,7 @@ const Lists: React.FC = () => {
         setSearchTerm('');
     }
 
-    const isDataReady = !isLoading && data?.pages?.[0]?.total !== undefined && user?.first_name;
+    const isDataReady = !isLoading && data?.pages?.[0]?.total !== undefined;
 
     return (
         <Box
@@ -76,9 +76,8 @@ const Lists: React.FC = () => {
             onScroll={loadMore}
         >
             <Header
-                title={`Hi ${user?.first_name}!`}
-                subTitle={`You have ${data?.pages?.[0]?.total || 0} active lists.`}
-                isLoading={!isDataReady}
+                title={!isUserLoaded ? <Skeleton variant="text" width={150} height={50} /> : `Hi ${user?.first_name}!`}
+                subTitle={!isDataReady ? <Skeleton variant="text" width={200} height={32} /> : `You have ${data?.pages?.[0]?.total} active lists.`}
             />
             <Container
                 maxWidth="lg"
@@ -130,7 +129,7 @@ const Lists: React.FC = () => {
                 </Grid>
 
                 {isFetchingNextPage && (
-                    <Box display="flex" justifyContent="center" mt={2}>
+                    <Box display="flex" justifyContent="center" mt={5}>
                         <CircularProgress />
                     </Box>
                 )}
