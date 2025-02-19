@@ -19,10 +19,6 @@ const BottomNavbar: React.FC = () => {
   const location = useLocation();
   const { handleOpenListModal, handleOpenListItemModal } = useBottomNavbar();
 
-  if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') {
-    return null;
-  }
-
   const { data: activeListCount, isLoading: isLoadingActiveListCount } = useQuery({
     queryKey: ['active-list-count', user?.user_id],
     queryFn: () => user?.user_id ? fetchListCount(user.user_id, false) : null,
@@ -52,6 +48,10 @@ const BottomNavbar: React.FC = () => {
   const handleMenuButton = () => {
     setMenuDrawerOpen(true);
   };
+
+  if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') {
+    return null;
+  }
 
   return (
     <>
