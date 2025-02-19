@@ -4,7 +4,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateListItem } from "../api/lists";
 import { IListItem } from "../models/lists";
 
-const ListItemCheckbox = ({ listItem }: { listItem: IListItem }) => {
+interface ListItemCheckboxProps {
+    listItem: IListItem;
+    onClick: () => void;
+}
+
+const ListItemCheckbox: React.FC<ListItemCheckboxProps> = ({ listItem, onClick }) => {
     const queryClient = useQueryClient();
     const [checked, setChecked] = useState<boolean | null | undefined>(listItem.purchased);
 
@@ -23,13 +28,17 @@ const ListItemCheckbox = ({ listItem }: { listItem: IListItem }) => {
             ...listItem,
             purchased: newChecked
         });
+
+        if (onClick) {
+            onClick();
+        }
     };
 
     return (
         <Checkbox 
             checked={checked ?? false} 
-            onChange={handleCheckboxChange} 
-            onClick={(e) => e.stopPropagation()}
+            onChange={handleCheckboxChange}
+            onClick={ (e) => e.stopPropagation() }
         />
     );
 };

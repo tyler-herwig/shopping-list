@@ -19,6 +19,7 @@ const ListDetail: React.FC = () => {
     const [selectedItem, setSelectedItem] = useState<IListItem | null>(null);
     const [selectedListItemId, setSelectedListItemId] = useState<number | undefined>();
     const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+    const [completedItemsExpanded, setCompletedItemsExpanded] = useState<boolean>(false);
 
     const { id } = useParams();
     const listId = id ? parseInt(id) : undefined;
@@ -61,6 +62,10 @@ const ListDetail: React.FC = () => {
     const handleCloseDrawer = () => {
         setDrawerOpen(false);
         setSelectedItem(null);
+    };
+
+    const handleCheckboxClick = () => {
+        setCompletedItemsExpanded(true);
     };
 
     /* Edit Handlers */
@@ -146,6 +151,7 @@ const ListDetail: React.FC = () => {
                                     <ListItemAvatar>
                                         <ListItemCheckbox 
                                             listItem={listItem}
+                                            onClick={handleCheckboxClick}
                                         />
                                     </ListItemAvatar>
                                     <ListItemText
@@ -170,6 +176,8 @@ const ListDetail: React.FC = () => {
                                     display: "none", 
                                 },
                             }}
+                            expanded={completedItemsExpanded}
+                            onChange={ () => setCompletedItemsExpanded(!completedItemsExpanded) }
                         >
                             <AccordionSummary
                                 expandIcon={<ExpandMoreIcon />}
@@ -189,6 +197,7 @@ const ListDetail: React.FC = () => {
                                             <ListItemAvatar>
                                                 <ListItemCheckbox 
                                                     listItem={listItem}
+                                                    onClick={handleCheckboxClick}
                                                 />
                                             </ListItemAvatar>
                                             <ListItemText
