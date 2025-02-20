@@ -19,17 +19,13 @@ const BottomNavbar: React.FC = () => {
   const location = useLocation();
   const { handleOpenListModal, handleOpenListItemModal } = useBottomNavbar();
 
-  const { data: activeListCount, isLoading: isLoadingActiveListCount } = useQuery({
-    queryKey: ['active-list-count', user?.user_id],
-    queryFn: () => user?.user_id ? fetchListCount(user.user_id, false) : null,
+  const { data: listCount, isLoading: isLoadingListCount } = useQuery({
+    queryKey: ['list-count', user?.user_id],
+    queryFn: () => user?.user_id ? fetchListCount(user.user_id) : null,
     enabled: !!user?.user_id && window.location.pathname !== '/login'
   });
 
-  const { data: completedListCount, isLoading: isLoadingCompletedListCount } = useQuery({
-    queryKey: ['completed-list-count', user?.user_id],
-    queryFn: () => user?.user_id ? fetchListCount(user.user_id, true) : null,
-    enabled: !!user?.user_id && window.location.pathname !== '/login'
-  });
+  console.log(listCount);
 
   const showAddButton = location.pathname !== '/dashboard/completed' ? true : false;
 
@@ -106,7 +102,7 @@ const BottomNavbar: React.FC = () => {
             }
           >
               <ListItemIcon>
-                <Badge badgeContent={isLoadingActiveListCount ? '...' : activeListCount} color="secondary">
+                <Badge badgeContent={isLoadingListCount ? '...' : listCount?.active} color="secondary">
                   <ViewList/>
                 </Badge>
               </ListItemIcon>
@@ -122,7 +118,7 @@ const BottomNavbar: React.FC = () => {
             }
           >
               <ListItemIcon>
-                <Badge badgeContent={isLoadingCompletedListCount ? '...' : completedListCount} color="primary">
+                <Badge badgeContent={isLoadingListCount ? '...' : listCount?.completed} color="primary">
                   <ViewList/>
                 </Badge>
               </ListItemIcon>

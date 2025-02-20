@@ -17,6 +17,11 @@ export interface IList {
     completed_date?: string;
 }
 
+export interface IListCount {
+    active: number;
+    completed: number;
+}
+
 export interface IListItemResponse {
     list_items: {
         active: IListItem[],

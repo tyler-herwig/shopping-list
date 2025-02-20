@@ -26,8 +26,7 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick, completed })
     mutationFn: deleteList,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["lists"], exact: false });
-      queryClient.invalidateQueries({ queryKey: ["active-list-count"], exact: false });
-      queryClient.invalidateQueries({ queryKey: ["completed-list-count"], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["list-count"], exact: false });
       setOpenDeleteDialog(false);
     },
   });
@@ -37,8 +36,7 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick, completed })
           updateList(id, { completed } as IList),
       onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ["lists"], exact: false });
-          queryClient.invalidateQueries({ queryKey: ["active-list-count"], exact: false });
-          queryClient.invalidateQueries({ queryKey: ["completed-list-count"], exact: false });
+          queryClient.invalidateQueries({ queryKey: ["list-count"], exact: false });
       }
   });
 

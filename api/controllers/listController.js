@@ -121,19 +121,30 @@ exports.getListById = async (req, res) => {
 };
 
 exports.getListCount = async (req, res) => {
-    const { user_id, completed } = req.query;
+    const { user_id } = req.query;
 
     try {
         const whereClause = { user_id };
 
-        if (completed) {
-            whereClause.completed = completed === 'true';
-        }
+        const activeCount = await List.count({
+            where: {
+                ...whereClause,
+                completed: false
+            }
+        });
 
-        const list_count = await List.count({ where: whereClause });
+        const completedCount = await List.count({
+            where: {
+                ...whereClause,
+                completed: true
+            }
+        });
 
         res.json({
-            list_count
+            list_count: {
+                active: activeCount,
+                completed: completedCount
+            }
         });
 
     } catch (err) {

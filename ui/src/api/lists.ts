@@ -1,5 +1,5 @@
 import axios from '../utils/axiosConfig';
-import { IList, IListItem, IListItemResponse, IListResponse } from '../models/lists';
+import { IList, IListCount, IListItem, IListItemResponse, IListResponse } from '../models/lists';
 
 export const fetchListsByUserId = async (user_id: string | undefined, completed: boolean, searchTerm: string, page: number | unknown = 1, limit: number = 10): Promise<IListResponse> => {
     const response = await axios.get<{ lists: IList[], total: number, total_pages: number, current_page: number }>(`/lists?user_id=${user_id}&completed=${completed}&search=${searchTerm}&page=${page}&limit=${limit}`);
@@ -7,8 +7,8 @@ export const fetchListsByUserId = async (user_id: string | undefined, completed:
     return response.data;
 }
 
-export const fetchListCount = async (user_id: string | undefined, completed: boolean) => {
-    const response = await axios.get<{ list_count: boolean }>(`/lists/count?user_id=${user_id}&completed=${completed}`);
+export const fetchListCount = async (user_id: string | undefined) => {
+    const response = await axios.get<{ list_count: IListCount }>(`/lists/count?user_id=${user_id}`);
     
     return response.data.list_count;
 }
