@@ -29,6 +29,14 @@ module.exports = (sequelize) => {
         completed: {
             type: DataTypes.BOOLEAN,
             allowNull: true
+        },
+        created_date: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
+        completed_date: {
+            type: DataTypes.DATE,
+            allowNull: true
         }
     }, {
         schema: 'listify',

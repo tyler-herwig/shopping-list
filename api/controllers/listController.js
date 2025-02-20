@@ -16,7 +16,14 @@ exports.createList = async (req, res) => {
             });
         }
 
-        const list = await List.create({ name, description, user_id, completed: false });
+        const list = await List.create({
+            name,
+            description,
+            user_id,
+            completed: false,
+            created_date: new Date().toISOString()
+        });
+
         return res.status(201).json({
             message: "List created successfully!",
             list,
@@ -62,15 +69,22 @@ exports.getLists = async (req, res) => {
             ];
         }
 
+        let order = [['created_date', 'DESC']];
+
+        if (completed === 'true') {
+            order = [['completed_date', 'DESC']];
+        }
+
         const total = await List.count({ where: whereClause });
 
         const lists = await List.findAll({
             where: whereClause,
             attributes: [
-                'id', 'name', 'description', 'user_id'
+                'id', 'name', 'description', 'user_id', 'completed_date'
             ],
             limit,
-            offset
+            offset,
+            order
         });
         
         for (let list of lists) {
@@ -132,6 +146,10 @@ exports.updateList = async (req, res) => {
     try {
         const list = await List.findByPk(req.params.id);
         if (!list) return res.sendStatus(404);
+
+        if (req.body.completed === true) {
+            list.completed_date = new Date().toISOString();
+        }
 
         Object.assign(list, req.body);
         await list.save();

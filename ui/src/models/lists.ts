@@ -14,6 +14,7 @@ export interface IList {
     list_item_count?: number;
     completed_list_item_count?: number;
     completed?: boolean;
+    completed_date?: string;
 }
 
 export interface IListItemResponse {

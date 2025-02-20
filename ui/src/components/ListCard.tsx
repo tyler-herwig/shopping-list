@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteList, updateList } from "../api/lists";
 import { IList } from "../models/lists";
 import ListItemProgressBar from "./ListItemProgressBar";
+import { formatDate } from "../utils/helpers";
 
 interface ListCardProps {
   list: IList;
@@ -127,8 +128,8 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick, completed })
             totalItems={list.list_item_count}
           />
         ) : (
-          <Typography variant="body2" sx={{ fontSize: "0.8rem", fontStyle: "italic", position: "absolute", bottom: 15, right: 15 }}>
-            February 20th, 2025 11:33 AM
+          <Typography variant="body2" sx={{ fontSize: "0.7rem", position: "absolute", bottom: 15, right: 15 }}>
+            Completed on {list.completed_date ? formatDate(list.completed_date) : ""}
           </Typography>
 
         )}
