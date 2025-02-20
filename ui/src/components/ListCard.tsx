@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Card, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Button, Divider, Dialog, DialogActions, DialogContent, DialogTitle, ListItemIcon } from "@mui/material";
+import { Card, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Button, Divider, Dialog, DialogActions, DialogContent, DialogTitle, ListItemIcon, Backdrop, CircularProgress } from "@mui/material";
 import { styled } from "@mui/system";
-import { MoreHoriz, Edit, Delete, Close, Check, CheckBoxOutlineBlank } from "@mui/icons-material";
+import { MoreHoriz, Edit, Delete, Close, Check, Restore } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteList, updateList } from "../api/lists";
@@ -44,7 +44,9 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick, completed })
 
   /* Card Handlers */
   const handleCardClick = () => {
-    navigate(`/dashboard/lists/${list.id}`);
+    if (!completed) {
+      navigate(`/dashboard/lists/${list.id}`);
+    }
   };
 
   const handleMoreButton = (event: React.MouseEvent<HTMLElement>) => {
@@ -81,6 +83,8 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick, completed })
     updateMutation.mutate({ id: list.id, completed: !completed })
   }
 
+  const StyledCard = !completed ? StyledCardActive : StyledCardCompleted;
+
   return (
     <>
       <StyledCard onClick={handleCardClick}>
@@ -92,6 +96,7 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick, completed })
             {list.description}
           </Typography>
         </Box>
+
         <Box
           sx={{
             position: "absolute",
@@ -105,15 +110,28 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick, completed })
             justifyContent: "center",
           }}
         >
-          <IconButton sx={{ color: "white" }} onClick={(e) => handleMoreButton(e)}>
-            <MoreHoriz />
-          </IconButton>
+          {!completed ? (
+            <IconButton sx={{ color: "white" }} onClick={(e) => handleMoreButton(e)}>
+              <MoreHoriz />
+            </IconButton>
+          ) : (
+            <IconButton sx={{ color: "white" }} onClick={handleCompleteMenuOption}>
+              <Restore />
+            </IconButton>
+          )}
         </Box>
 
-        <ListItemProgressBar
-          completedItems={list.completed_list_item_count}
-          totalItems={list.list_item_count}
-        />
+        {!completed ? (
+          <ListItemProgressBar
+            completedItems={list.completed_list_item_count}
+            totalItems={list.list_item_count}
+          />
+        ) : (
+          <Typography variant="body2" sx={{ fontSize: "0.8rem", fontStyle: "italic", position: "absolute", bottom: 15, right: 15 }}>
+            February 20th, 2025 11:33 AM
+          </Typography>
+
+        )}
       </StyledCard>
 
       <Drawer
@@ -157,21 +175,10 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick, completed })
           </ListItem>
           <Divider />
           <ListItem onClick={handleCompleteMenuOption}>
-            {!completed ? (
-              <>
-                <ListItemIcon>
-                  <Check/>
-                </ListItemIcon>
-                <ListItemText primary="Mark Complete" />
-              </>
-            ) : (
-              <>
-                <ListItemIcon>
-                  <CheckBoxOutlineBlank/>
-                </ListItemIcon>
-                <ListItemText primary="Mark Incomplete" />
-              </>
-            )}
+            <ListItemIcon>
+              <Check/>
+            </ListItemIcon>
+            <ListItemText primary="Mark Complete" />
           </ListItem>
         </List>
       </Drawer>
@@ -190,11 +197,14 @@ const ListCard: React.FC<ListCardProps> = ({ list, handleEditClick, completed })
           <Button onClick={handleDelete}>Delete</Button>
         </DialogActions>
       </Dialog>
+      <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={deleteMutation.isPending || updateMutation.isPending}>
+          <CircularProgress color="inherit" />
+      </Backdrop>
     </>
   );
 };
 
-const StyledCard = styled(Card)({
+const StyledCardActive = styled(Card)({
   height: "150px",
   position: "relative",
   color: "white",
@@ -216,5 +226,29 @@ const StyledCard = styled(Card)({
     borderRadius: "50%",
   },
 });
+
+const StyledCardCompleted = styled(Card)({
+  height: "150px",
+  position: "relative",
+  color: "white",
+  borderRadius: "16px",
+  boxShadow: "3px 3px 10px rgba(0,0,0,0.1)",
+  overflow: "hidden",
+  background: "linear-gradient(135deg, #1565c0 30%, #1e88e5 100%)", // Updated to blue gradient
+  alignItems: "center",
+  padding: "16px",
+  justifyContent: "space-between",
+  "::before": {
+    content: '""',
+    position: "absolute",
+    width: "270px",
+    height: "270px",
+    background: "rgba(255, 255, 255, 0.1)",
+    top: "-140px",
+    right: "-90px",
+    borderRadius: "50%",
+  },
+});
+
 
 export default ListCard;

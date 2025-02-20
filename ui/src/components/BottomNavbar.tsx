@@ -22,13 +22,13 @@ const BottomNavbar: React.FC = () => {
   const { data: activeListCount, isLoading: isLoadingActiveListCount } = useQuery({
     queryKey: ['active-list-count', user?.user_id],
     queryFn: () => user?.user_id ? fetchListCount(user.user_id, false) : null,
-    enabled: !!user?.user_id
+    enabled: !!user?.user_id && window.location.pathname !== '/login'
   });
 
   const { data: completedListCount, isLoading: isLoadingCompletedListCount } = useQuery({
     queryKey: ['completed-list-count', user?.user_id],
     queryFn: () => user?.user_id ? fetchListCount(user.user_id, true) : null,
-    enabled: !!user?.user_id
+    enabled: !!user?.user_id && window.location.pathname !== '/login'
   });
 
   const showAddButton = location.pathname !== '/dashboard/completed' ? true : false;

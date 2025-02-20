@@ -3,7 +3,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useUserContext } from "../context/UserContext";
 import { fetchListsByUserId } from "../api/lists";
 import { IListResponse } from "../models/lists";
-import { Container, CircularProgress, Grid, Box, TextField, InputAdornment, IconButton, Skeleton } from "@mui/material";
+import { Container, CircularProgress, Grid, Box, TextField, InputAdornment, IconButton, Skeleton, Backdrop } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear'; 
 import ListCard from "../components/ListCard";
@@ -113,24 +113,18 @@ const Lists: React.FC<ListsProps> = ({ completed }) => {
                       }}
                 />
                 <Grid container spacing={3}>
-                    {isLoading || (isFetching && !isFetchingNextPage)? (
-                        <Box display="flex" justifyContent="center" alignItems="center" height="60vh" width="100%">
-                            <CircularProgress />
-                        </Box>
-                    ) : (
-                        data?.pages.map((page) =>
-                            page.lists.map((list) => (
-                                <Grid item xs={12} sm={6} key={list.id}>
-                                    <Box>
-                                        <ListCard
-                                            list={list}
-                                            handleEditClick={handleEditClick}
-                                            completed={completed}
-                                        />
-                                    </Box>
-                                </Grid>
-                            ))
-                        )
+                    {data?.pages.map((page) =>
+                        page.lists.map((list) => (
+                            <Grid item xs={12} sm={6} key={list.id}>
+                                <Box>
+                                    <ListCard
+                                        list={list}
+                                        handleEditClick={handleEditClick}
+                                        completed={completed}
+                                    />
+                                </Box>
+                            </Grid>
+                        ))
                     )}
                 </Grid>
 
@@ -150,6 +144,9 @@ const Lists: React.FC<ListsProps> = ({ completed }) => {
                 }} 
                 listId={selectedListId}
             />
+            <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading || (isFetching && !isFetchingNextPage)}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </Box>
     );
 };
